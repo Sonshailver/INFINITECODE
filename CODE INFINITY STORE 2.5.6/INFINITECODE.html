@@ -632,22 +632,33 @@
     
             // Inicializa el modelo de lenguaje en el navegador
             async function inicializarIA() {
+                // 🚦 SEMÁFORO: Si el script del módulo no ha inyectado la librería aún, esperamos
+                if (typeof window.pipeline !== 'function') {
+                    console.log("Esperando a que Transformers.js se inyecte en window...");
+                    setTimeout(inicializarIA, 500); // Reintenta en 500 milisegundos
+                    return;
+                }
+              
                 if (chatbotPipe) return; 
                 
                 cargandoIA = true;
+                
+                // Limpiamos errores previos si los hubiera para no duplicar mensajes
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = ''; 
+              
                 agregarMensaje("Lumi se está despertando... (Descargando cerebro de IA local, espera unos segundos por favor)", "mascot-msg");
-    
+              
                 try {
-                    // Cargamos un modelo de generación de texto ultraligero (aprox 70M de parámetros, ideal para navegadores)
+                    // Cargamos el modelo de generación de texto ultraligero
                     chatbotPipe = await window.pipeline('text2text-generation', 'Xenova/LaMini-Flan-T5-78M');
                     
                     // Limpiamos el texto de carga inicial
-                    const chatBox = document.getElementById('chat-box');
                     chatBox.innerHTML = ''; 
                     
                     agregarMensaje("¡Hola! Soy Lumi, la mascota de Infinite Code. ¡Ya estoy despierta y corriendo sobre una IA real en tu navegador! ¿De qué quieres hablar? 🎮", "mascot-msg");
                 } catch (error) {
-                    console.error("Error al cargar Transformers.js:", error);
+                    console.error("Error crítico dentro de Transformers.js:", error);
                     agregarMensaje("Ups, no pude iniciar mi núcleo de IA. Asegúrate de estar conectado a internet para la primera carga.", "mascot-msg");
                 } finally {
                     cargandoIA = false;
