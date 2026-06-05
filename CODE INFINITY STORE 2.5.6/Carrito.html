@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="infinitecodeconfig.css">
+    <link rel="icon" href="./Imagenes/Logo.ico" type="image/x-icon">
+    <script src="Filtrado.JS" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const animatedElements = document.querySelectorAll(".navbar, .login-container, .editar-form");
+        
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        const delay = index * 100; // Stagger effect
+                        entry.target.style.setProperty('--delay', `${delay}ms`);
+                        entry.target.classList.add("visible");
+                    } else {
+                        entry.target.classList.remove("visible");
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+             // Observar elementos que ya existen
+             document.addEventListener("DOMContentLoaded", () => {
+               const initialElements = document.querySelectorAll(".product-card, barra-de-busqueda");
+               initialElements.forEach(el => observer.observe(el));
+             });
+        
+            animatedElements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+    <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM cargado");
+          
+            // Obtener usuarios guardados en localStorage
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+          
+            // Elementos del DOM para login
+            const loginForm = document.querySelector(".login-form");
+            const loginUsername = document.getElementById("login-username");
+            const loginPassword = document.getElementById("login-password");
+            const guestLinks = document.getElementById("guest-links");
+            const userLinks = document.getElementById("user-links");
+            const userName = document.getElementById("user-name");
+            const userAvatar = document.getElementById("user-avatar");
+            const fondoLogin = document.getElementById("fondo-login");
+            const cerrarSesionBtn = document.getElementById("cerrar-sesion");
+            const fondoEditar = document.getElementById("fondo-editar");
+            const editFullname = document.getElementById("edit-fullname");
+            const editEmail = document.getElementById("edit-email");
+            const editPassword = document.getElementById("edit-password");
+            const editAvatarFile = document.getElementById("edit-avatar-file");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarDropArea = document.getElementById("avatar-drop-area");
+            
+
+            let avatarDataURL = null; // Guardará la imagen como base64
+
+          
+            // Elementos del DOM para registro
+            const registroForm = document.querySelector("#fondo-unirse .login-form");
+            const fullname = document.getElementById("fullname");
+            const username = document.getElementById("username");
+            const email = document.getElementById("email");
+            const password = document.getElementById("password");
+            const confirmPassword = document.getElementById("confirm_password");
+
+            
+
+            
+          
+            // Mostrar área de usuario autenticado
+            const iniciarSesion = (usuario) => {
+            usuarioActivo = usuario; // <- GUARDAMOS EL USUARIO
+            localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+            guestLinks.style.display = "none";
+            userLinks.style.display = "flex";
+            userName.textContent = usuario.fullname;
+            userAvatar.src = usuario.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+            fondoLogin.classList.remove("activo");
+            limpiarFormulario();
+            alert(`Bienvenido, ${usuario.fullname}! Has iniciado sesión exitosamente.`);
+          };
+          
+            // Cerrar sesión
+            const cerrarSesion = () => {
+              localStorage.removeItem("usuarioActivo");
+              usuarioActivo = null;
+              userLinks.style.display = "none";
+              guestLinks.style.display = "flex";
+              userName.textContent = "Usuario";
+              userAvatar.src = usuario.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+              limpiarFormulario();
+              limpiarRegistroFormulario();
+              fondoLogin.classList.remove("activo");
+              document.getElementById("fondo-unirse").classList.remove("activo");
+              alert("Has cerrado sesión exitosamente.");
+            };
+
+            // Al cargar la página
+            document.addEventListener("DOMContentLoaded", () => {
+             usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+             if (usuarioActivo) {
+               guestLinks.style.display = "none";
+               userLinks.style.display = "flex";
+               userName.textContent = usuarioActivo.fullname;
+               userAvatar.src = usuarioActivo.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+             }
+            });
+          
+            // Limpiar formularios
+            const limpiarFormulario = () => {
+              loginUsername.value = "";
+              loginPassword.value = "";
+              
+            };
+          
+            const limpiarRegistroFormulario = () => {
+              fullname.value = "";
+              username.value = "";
+              email.value = "";
+              password.value = "";
+              confirmPassword.value = "";
+            };
+          
+            // Validar login
+            const validarFormulario = () => {
+              if (!loginUsername.value || !loginPassword.value) {
+                alert("Por favor, completa todos los campos.");
+                return null;
+              }
+            
+              const usuarioEncontrado = usuarios.find(
+                (u) => u.username === loginUsername.value && u.password === loginPassword.value
+              );
+            
+              if (!usuarioEncontrado) {
+                alert("Usuario o contraseña incorrectos.");
+                return null;
+              }
+            
+              return usuarioEncontrado;
+            };
+          
+            // Evento de login
+            loginForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+              const usuario = validarFormulario();
+              if (usuario) {
+                iniciarSesion(usuario);
+              }
+            });
+          
+            // Evento de registro
+            registroForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+            
+              if (fullname.value && username.value && email.value && password.value && confirmPassword.value) {
+                if (password.value !== confirmPassword.value) {
+                  alert("Las contraseñas no coinciden. Inténtalo de nuevo.");
+                  return;
+                }
+              
+                const existe = usuarios.find((u) => u.username === username.value);
+                if (existe) {
+                  alert("El nombre de usuario ya está registrado.");
+                  return;
+                }
+              
+                const nuevoUsuario = {
+                  fullname: fullname.value,
+                  username: username.value,
+                  email: email.value,
+                  password: password.value,
+                };
+              
+                usuarios.push(nuevoUsuario);
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+              
+                mostrarToast(`Registro exitoso. Bienvenido, ${nuevoUsuario.fullname}!`);
+                limpiarRegistroFormulario();
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              } else {
+                alert("Por favor, completa todos los campos.");
+              }
+            });
+          
+            // Cerrar sesión
+            cerrarSesionBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              cerrarSesion();
+            });
+          
+            // Abrir login y registro
+            document.getElementById("abrir-login").addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoLogin.classList.add("activo");
+            });
+          
+            document.getElementById("abrir-unirse").addEventListener("click", (e) => {
+              e.preventDefault();
+              document.getElementById("fondo-unirse").classList.add("activo");
+            });
+          
+            // Cerrar modales al hacer clic fuera
+            fondoLogin.addEventListener("click", (e) => {
+              if (e.target === fondoLogin) fondoLogin.classList.remove("activo");
+            });
+          
+            document.getElementById("fondo-unirse").addEventListener("click", (e) => {
+              if (e.target === document.getElementById("fondo-unirse")) {
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              }
+            });
+          
+            // Cerrar modales con tecla Escape
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                fondoLogin.classList.remove("activo");
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              }
+            });
+
+            // Mostrar formulario de edición al hacer clic en el avatar
+            userAvatar.addEventListener("click", () => {
+              if (usuarioActivo) {
+                editFullname.value = usuarioActivo.fullname;
+                editEmail.value = usuarioActivo.email;
+                editPassword.value = "";
+                fondoEditar.classList.add("activo");
+              }
+            });
+
+            // Cerrar el formulario si se hace clic fuera
+            fondoEditar.addEventListener("click", (e) => {
+              if (e.target === fondoEditar) {
+                fondoEditar.classList.remove("activo");
+              }
+            });
+
+            // Evento para guardar cambios del formulario de edición
+            document.getElementById("form-editar").addEventListener("submit", (e) => {
+              e.preventDefault();
+              usuarioActivo.fullname = editFullname.value;
+              usuarioActivo.email = editEmail.value;
+              if (editPassword.value) {
+                usuarioActivo.password = editPassword.value;
+              }
+            
+              // Actualizar en localStorage
+              const index = usuarios.findIndex(u => u.username === usuarioActivo.username);
+              if (index !== -1) {
+                usuarios[index] = usuarioActivo;
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+              }
+
+              if (avatarDataURL) {
+                usuarioActivo.avatar = avatarDataURL;
+              }
+
+            
+              userName.textContent = usuarioActivo.fullname;
+              fondoEditar.classList.remove("activo");
+              alert("Datos actualizados correctamente.");
+            });
+          });
+
+
+
+          
+
+          // Variable global para saber qué usuario está logueado
+          let usuarioActivo = null;
+
+          
+          
+
+          
+
+
+          // Actualizar usuario en localStorage
+          function actualizarUsuarioEnStorage(usuario) {
+            const index = usuarios.findIndex((u) => u.username === usuario.username);
+            if (index !== -1) {
+              usuarios[index] = usuario;
+              localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            }
+          }
+
+
+
+        </script>
+
+
+
+
+</head>
+<body>
+    <div>
+        <video muted on autoplay loop class="video-background">
+            <source src="./Imagenes/INFINITEVIDEO (1).mp4" type="video/mp4" alt="Video de fondo">
+            
+        </video>
+    </div>
+    <nav class="top-bar">
+            <div class="top-bar-content" id="guest-links">
+                <li class="top-bar-item"><a href="#" id="abrir-login">INICIAR SESION</a> </li>
+                <li class="top-bar-item"><a href="#" id="abrir-unirse">UNIRSE</a></li>
+            </div>
+
+            <!-- Cuando el usuario ha iniciado sesión -->
+            <div class="top-bar-content" id="user-links" style="display: none;">
+              <li class="top-bar-item">
+                <li id="user-name"><a href="#">Usuario</a></li>
+                <img id="user-avatar" src="https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180" alt="Avatar" style="border-radius: 50%; vertical-align: middle;">
+                
+              </li>
+                <li class="top-bar-item"><a href="#" id="cerrar-sesion">CERRAR SESION</a></li>
+            </div>
+            
+        </nav>
+        <div id="fondo-editar" class="fondo-modal">
+          <form class="editar-form" id="editar-form">
+            <h2>Editar cuenta</h2>
+          
+            <div class="avatar-upload-area" id="avatar-upload-area">
+              <label for="avatar-input" class="avatar-label">
+                <span id="avatar-drop-area">Haz clic o arrastra tu imagen aquí</span>
+                <input type="file" id="avatar-input" accept="image/*" />
+                <img id="avatar-preview" src="" />
+              </label>
+              
+            </div>
+          
+            <input type="text" id="edit-fullname" placeholder="Nombre completo" />
+            <input type="email" id="edit-email" placeholder="Correo electrónico" />
+            <input type="password" id="edit-password" placeholder="Nueva contraseña (opcional)" />
+            <button type="submit">Guardar cambios</button>
+          </form>
+        </div>
+
+        
+
+        
+        <!-- FONDO OSCURO LOGIN -->
+        <div id="fondo-login" class="fondo-oscuro">
+            <div class="login-container">
+              <h1>LOGIN</h1>
+              <form class="login-form">
+                <div class="form-group">
+                  <label for="login-username">Nombre de usuario</label>
+                  <input type="text" id="login-username" name="username" placeholder="Tu nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                  <label for="login-password">Contraseña</label>
+                  <input type="password" id="login-password" name="password" placeholder="Tu contraseña" required>
+                </div>
+                <div class="form-group checkbox-inline">
+                  <input type="checkbox" name="remember" id="remember">
+                  <label for="remember">Recuérdame</label>
+                </div>
+                <button type="submit" class="login-button">Entrar</button>
+              </form>
+            </div>
+        </div>
+
+    <!-- FONDO OSCURO REGISTRO -->
+    <div id="fondo-unirse" class="fondo-oscuro">
+      <div class="login-container">
+        <h1>REGISTRO</h1>
+        <form class="login-form" action="/registro" method="POST">
+          <div class="form-group">
+            <label for="fullname">Nombre completo</label>
+            <input type="text" id="fullname" name="fullname" placeholder="Tu nombre completo" required>
+          </div>
+          <div class="form-group">
+            <label for="username">Nombre de usuario</label>
+            <input type="text" id="username" name="username" placeholder="Elige un usuario" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" placeholder="Crea una contraseña" required>
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirmar contraseña</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Repite la contraseña" required>
+          </div>
+          <div class="form-group checkbox-inline">
+            <input type="checkbox" name="terms" id="terms" required>
+            <label for="terms">Acepto los términos y condiciones</label>
+          </div>
+          <button type="submit" class="login-button">Registrarse</button>
+        </form>
+      </div>
+    </div>
+
+
+
+    <nav class="navbar">
+        <div class="navbar-logo">
+            <img src="./Imagenes/Logo.ico" alt="Logo" class="logo">
+            <span class="logo-text" onclick="location.href='INFINITECODE.html';">INFINITECODE</span>
+        </div>
+        <ul class="navbar-links">
+            <li class="dropdown">
+                <a href="#">CATEGORIAS</a>
+                <div class="dropdown-menu">
+                  <div class="mega-menu">
+                    <div class="mega-column">
+                      <h4>Componentes</h4>
+                      <a href="#">Procesadores</a>
+                      <a href="#">RAM</a>
+                      <a href="#">Tarjetas Gráficas</a>
+                    </div>
+                    <div class="mega-column">
+                      <h4>Almacenamiento</h4>
+                      <a href="#">Discos SSD</a>
+                      <a href="#">HDD</a>
+                      <a href="#">Externo</a>
+                    </div>
+                    <div class="mega-column">
+                      <h4>Otros</h4>
+                      <a href="#">Portátiles</a>
+                      <a href="#">Accesorios</a>
+                      <a href="#">Reguladores</a>
+                    </div>
+                  </div>
+                </div>
+            </li>
+              
+            <li class="dropdown">
+                <a href="#">CARRITO</a>
+                <div class="dropdown-menu">
+                    <div class="mega-menu">
+                        <div class="mega-column">
+                            <h4>Carrito</h4>
+                            <a href="Carrito.html">Ver Carrito</a>
+                            <a href="#" id="abrir-historial">Historial de Compras</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="Nosotros.html">SOBRE NOSOTROS</a>
+                
+            </li>
+            
+        </ul>
+    
+    </nav>
+    <div id="historial-modal" class="modal" style="display: none;">
+          <div class="modal-content">
+            <span id="cerrar-historial" class="close">&times;</span>
+            <h3>Historial de compras</h3>
+            <ul id="lista-historial"></ul>
+          </div>
+    </div>
+
+    
+
+    
+
+
+    <button id="toggle-search">🔍</button>
+    <!-- Barra de búsqueda oculta inicialmente -->
+    <div class="barra-de-busqueda" id="barraBusqueda">
+      <input type="text" id="searchBar" placeholder="Buscar...">
+      
+    </div>
+
+    <div>
+        
+        <button class="carrito" onclick="location.href='Carrito.html';">🛒
+            <span id="carrito-count">0</span>
+        </button>
+    </div>
+
+    <audio id="bgMusic" loop>
+            <source src="./Imagenes/goku.mp4" type="audio/mp3">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        
+
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+              const audio = document.getElementById('bgMusic');
+              
+              // Intenta reproducir tan pronto como se cargue la página
+              try {
+                  audio.play().catch(function(error) {
+                      console.log("Reproducción automática bloqueada por el navegador:", error);
+                      // Reproducir al primer clic en cualquier parte de la página
+                      document.addEventListener('click', function playOnClick() {
+                          audio.play();
+                          document.removeEventListener('click', playOnClick);
+                      }, { once: true });
+                  });
+              } catch(e) {
+                  console.log("Error al intentar reproducir:", e);
+              }
+              
+              // Establecer volumen inicial
+              audio.volume = 0.5;
+          });
+        </script>
+
+
+    <div class="carrito-container">
+        <h3>Carrito de Compras</h3>
+        <ul id="carrito-lista">
+            <!-- Aquí se agregarán los productos del carrito -->
+        </ul>
+        <p id="carrito-total">Total: $0</p>
+        <button onclick="window.history.back();">Volver</button>
+        <button id="comprar">Comprar</button>
+    </div>
+    <script src="Carritologic.js"></script>
+
+    <script>
+        const abrirLogin = document.getElementById("abrir-login");
+        const fondoLogin = document.getElementById("fondo-login");
+      
+        const abrirUnirse = document.getElementById("abrir-unirse");
+        const fondoUnirse = document.getElementById("fondo-unirse");
+      
+        abrirLogin.addEventListener("click", (e) => {
+          e.preventDefault();
+          fondoLogin.classList.add("activo");
+        });
+      
+        fondoLogin.addEventListener("click", (e) => {
+          if (e.target === fondoLogin) fondoLogin.classList.remove("activo");
+        });
+      
+        abrirUnirse.addEventListener("click", (e) => {
+          e.preventDefault();
+          fondoUnirse.classList.add("activo");
+        });
+      
+        fondoUnirse.addEventListener("click", (e) => {
+          if (e.target === fondoUnirse) fondoUnirse.classList.remove("activo");
+        });
+      
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            fondoLogin.classList.remove("activo");
+            fondoUnirse.classList.remove("activo");
+          }
+        });
+    </script>
+      
+    <script>
+        const toggleButton = document.getElementById("toggle-search");
+        const barra = document.getElementById("barraBusqueda");
+                
+        toggleButton.addEventListener("click", () => {
+          if (barra.style.display === "block") {
+            barra.style.display = "none";
+          } else {
+            barra.style.display = "block";
+          }
+        });
+    </script>
+
+    <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const avatarDropArea = document.getElementById("avatar-drop-area");
+          
+            avatarInput.addEventListener("change", function () {
+              const file = avatarInput.files[0];
+              if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  avatarPreview.src = e.target.result;
+                  avatarDropArea.style.display = "none"; // 👈 Oculta el texto
+      
+                };
+                reader.readAsDataURL(file);
+              }
+            });
+          });
+
+
+          const editarForm = document.querySelector(".editar-form");
+
+          editarForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+          
+            // Obtener valores del formulario
+            const nuevoNombre = document.getElementById("edit-fullname").value.trim();
+            const nuevoEmail = document.getElementById("edit-email").value.trim();
+            const nuevaPassword = document.getElementById("edit-password").value;
+            const nuevaImagen = document.getElementById("avatar-preview").src;
+          
+            // Validaciones básicas
+            if (!nuevoNombre || !nuevoEmail) {
+              alert("El nombre y correo no pueden estar vacíos.");
+              return;
+            }
+          
+            // Actualizar los datos del usuario activo
+            usuarioActivo.fullname = nuevoNombre;
+            usuarioActivo.email = nuevoEmail;
+            if (nuevaPassword) {
+              usuarioActivo.password = nuevaPassword;
+            }
+            if (nuevaImagen && nuevaImagen.startsWith("data:image/")) {
+              usuarioActivo.avatar = nuevaImagen;
+            }
+          
+            // Actualizar el usuario en el array de usuarios
+            const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            const indice = usuarios.findIndex(u => u.username === usuarioActivo.username);
+            if (indice !== -1) {
+              usuarios[indice] = usuarioActivo;
+              localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            }
+          
+            // Actualizar UI
+            document.getElementById("user-name").textContent = usuarioActivo.fullname;
+            document.getElementById("user-avatar").src = usuarioActivo.avatar || "default.png";
+          
+            // Cerrar modal
+            document.getElementById("fondo-editar").classList.remove("activo");
+            alert("¡Cambios guardados exitosamente!");
+          });
+
+        </script>
+
+       <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+          
+            const guestLinks = document.getElementById("guest-links");
+            const userLinks = document.getElementById("user-links");
+            const userName = document.getElementById("user-name");
+            const userAvatar = document.getElementById("user-avatar");
+          
+            const fondoEditar = document.getElementById("fondo-editar");
+            const editFullname = document.getElementById("edit-fullname");
+            const editEmail = document.getElementById("edit-email");
+            const editPassword = document.getElementById("edit-password");
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const editarForm = document.getElementById("editar-form");
+          
+            if (usuarioActivo) {
+              guestLinks.style.display = "none";
+              userLinks.style.display = "flex";
+              userName.textContent = usuarioActivo.fullname || "Usuario";
+              userAvatar.src = usuarioActivo.avatar || "https://via.placeholder.com/30";
+            
+              // Mostrar datos en formulario de edición
+              userAvatar?.addEventListener("click", () => {
+                if (usuarioActivo) {
+                  editFullname.value = usuarioActivo.fullname || "";
+                  editEmail.value = usuarioActivo.email || "";
+                  editPassword.value = "";
+                  avatarPreview.src = usuarioActivo.avatar || "https://via.placeholder.com/100";
+                  fondoEditar.classList.add("activo");
+                }
+              });
+            
+              // Cerrar modal al hacer clic fuera
+              fondoEditar?.addEventListener("click", (e) => {
+                if (e.target === fondoEditar) {
+                  fondoEditar.classList.remove("activo");
+                }
+              });
+            
+              // Previsualizar imagen al subir avatar
+              avatarInput?.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith("image/")) {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    avatarPreview.src = reader.result;
+                  };
+                  reader.readAsDataURL(file);
+                }
+              });
+            
+              // Guardar cambios del formulario
+              editarForm?.addEventListener("submit", (e) => {
+                e.preventDefault();
+              
+                usuarioActivo.fullname = editFullname.value.trim();
+                usuarioActivo.email = editEmail.value.trim();
+              
+                if (editPassword.value.trim()) {
+                  usuarioActivo.password = editPassword.value.trim();
+                }
+              
+                if (avatarPreview.src && !avatarPreview.src.includes("placeholder")) {
+                  usuarioActivo.avatar = avatarPreview.src;
+                }
+              
+                // Actualizar lista de usuarios
+                const index = usuarios.findIndex(u => u.username === usuarioActivo.username);
+                if (index !== -1) {
+                  usuarios[index] = usuarioActivo;
+                  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+                }
+              
+                // Guardar usuario activo actualizado
+                localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+              
+                // Actualizar UI
+                userName.textContent = usuarioActivo.fullname;
+                userAvatar.src = usuarioActivo.avatar || "https://via.placeholder.com/30";
+                fondoEditar.classList.remove("activo");
+                alert("Datos actualizados correctamente.");
+              });
+            }
+          
+            // Cerrar sesión
+            document.getElementById("cerrar-sesion")?.addEventListener("click", (e) => {
+              e.preventDefault();
+              localStorage.removeItem("usuarioActivo");
+              location.reload();
+            });
+          });
+        </script>
+
+        
+
+    
+    
+</body>
+</html>

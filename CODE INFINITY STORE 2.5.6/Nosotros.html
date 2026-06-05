@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="icon" href="./Imagenes/Logo.ico" type="image/x-icon">
+        <link rel="stylesheet" href="infinitecodeconfig.css">
+        <title>Sobre Nosotros</title>
+        <script src="Filtrado.JS" defer></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const animatedElements = document.querySelectorAll(".navbar, .footer, .fundadores, .login-container, .Redes");
+            
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            const delay = index * 100; // Stagger effect
+                            entry.target.style.setProperty('--delay', `${delay}ms`);
+                            entry.target.classList.add("visible");
+                        } else {
+                            entry.target.classList.remove("visible");
+                        }
+                    });
+                }, {
+                    threshold: 0.1
+                });
+
+                 // Observar elementos que ya existen
+                 document.addEventListener("DOMContentLoaded", () => {
+                   const initialElements = document.querySelectorAll(".product-card, barra-de-busqueda");
+                   initialElements.forEach(el => observer.observe(el));
+                 });
+            
+                animatedElements.forEach(el => observer.observe(el));
+            });
+        </script>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM cargado");
+          
+            // Obtener usuarios guardados en localStorage
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+          
+            // Elementos del DOM para login
+            const loginForm = document.querySelector(".login-form");
+            const loginUsername = document.getElementById("login-username");
+            const loginPassword = document.getElementById("login-password");
+            const guestLinks = document.getElementById("guest-links");
+            const userLinks = document.getElementById("user-links");
+            const userName = document.getElementById("user-name");
+            const userAvatar = document.getElementById("user-avatar");
+            const fondoLogin = document.getElementById("fondo-login");
+            const cerrarSesionBtn = document.getElementById("cerrar-sesion");
+            const fondoEditar = document.getElementById("fondo-editar");
+            const editFullname = document.getElementById("edit-fullname");
+            const editEmail = document.getElementById("edit-email");
+            const editPassword = document.getElementById("edit-password");
+            const editAvatarFile = document.getElementById("edit-avatar-file");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarDropArea = document.getElementById("avatar-drop-area");
+            
+
+            let avatarDataURL = null; // Guardará la imagen como base64
+
+          
+            // Elementos del DOM para registro
+            const registroForm = document.querySelector("#fondo-unirse .login-form");
+            const fullname = document.getElementById("fullname");
+            const username = document.getElementById("username");
+            const email = document.getElementById("email");
+            const password = document.getElementById("password");
+            const confirmPassword = document.getElementById("confirm_password");
+
+            
+
+            
+          
+            // Mostrar área de usuario autenticado
+            const iniciarSesion = (usuario) => {
+            usuarioActivo = usuario; // <- GUARDAMOS EL USUARIO
+            localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+            guestLinks.style.display = "none";
+            userLinks.style.display = "flex";
+            userName.textContent = usuario.fullname;
+            userAvatar.src = usuario.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+            fondoLogin.classList.remove("activo");
+            limpiarFormulario();
+            alert(`Bienvenido, ${usuario.fullname}! Has iniciado sesión exitosamente.`);
+          };
+          
+            // Cerrar sesión
+            const cerrarSesion = () => {
+              localStorage.removeItem("usuarioActivo");
+              usuarioActivo = null;
+              userLinks.style.display = "none";
+              guestLinks.style.display = "flex";
+              userName.textContent = "Usuario";
+              userAvatar.src = usuario.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+              limpiarFormulario();
+              limpiarRegistroFormulario();
+              fondoLogin.classList.remove("activo");
+              document.getElementById("fondo-unirse").classList.remove("activo");
+              alert("Has cerrado sesión exitosamente.");
+            };
+
+            // Al cargar la página
+            document.addEventListener("DOMContentLoaded", () => {
+             usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+             if (usuarioActivo) {
+               guestLinks.style.display = "none";
+               userLinks.style.display = "flex";
+               userName.textContent = usuarioActivo.fullname;
+               userAvatar.src = usuarioActivo.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+             }
+            });
+          
+            // Limpiar formularios
+            const limpiarFormulario = () => {
+              loginUsername.value = "";
+              loginPassword.value = "";
+              
+            };
+          
+            const limpiarRegistroFormulario = () => {
+              fullname.value = "";
+              username.value = "";
+              email.value = "";
+              password.value = "";
+              confirmPassword.value = "";
+            };
+          
+            // Validar login
+            const validarFormulario = () => {
+              if (!loginUsername.value || !loginPassword.value) {
+                alert("Por favor, completa todos los campos.");
+                return null;
+              }
+            
+              const usuarioEncontrado = usuarios.find(
+                (u) => u.username === loginUsername.value && u.password === loginPassword.value
+              );
+            
+              if (!usuarioEncontrado) {
+                alert("Usuario o contraseña incorrectos.");
+                return null;
+              }
+            
+              return usuarioEncontrado;
+            };
+          
+            // Evento de login
+            loginForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+              const usuario = validarFormulario();
+              if (usuario) {
+                iniciarSesion(usuario);
+              }
+            });
+          
+            // Evento de registro
+            registroForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+            
+              if (fullname.value && username.value && email.value && password.value && confirmPassword.value) {
+                if (password.value !== confirmPassword.value) {
+                  alert("Las contraseñas no coinciden. Inténtalo de nuevo.");
+                  return;
+                }
+              
+                const existe = usuarios.find((u) => u.username === username.value);
+                if (existe) {
+                  alert("El nombre de usuario ya está registrado.");
+                  return;
+                }
+              
+                const nuevoUsuario = {
+                  fullname: fullname.value,
+                  username: username.value,
+                  email: email.value,
+                  password: password.value,
+                };
+              
+                usuarios.push(nuevoUsuario);
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+              
+                mostrarToast(`Registro exitoso. Bienvenido, ${nuevoUsuario.fullname}!`);
+                limpiarRegistroFormulario();
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              } else {
+                alert("Por favor, completa todos los campos.");
+              }
+            });
+          
+            // Cerrar sesión
+            cerrarSesionBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              cerrarSesion();
+            });
+          
+            // Abrir login y registro
+            document.getElementById("abrir-login").addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoLogin.classList.add("activo");
+            });
+          
+            document.getElementById("abrir-unirse").addEventListener("click", (e) => {
+              e.preventDefault();
+              document.getElementById("fondo-unirse").classList.add("activo");
+            });
+          
+            // Cerrar modales al hacer clic fuera
+            fondoLogin.addEventListener("click", (e) => {
+              if (e.target === fondoLogin) fondoLogin.classList.remove("activo");
+            });
+          
+            document.getElementById("fondo-unirse").addEventListener("click", (e) => {
+              if (e.target === document.getElementById("fondo-unirse")) {
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              }
+            });
+          
+            // Cerrar modales con tecla Escape
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                fondoLogin.classList.remove("activo");
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              }
+            });
+
+            // Mostrar formulario de edición al hacer clic en el avatar
+            userAvatar.addEventListener("click", () => {
+              if (usuarioActivo) {
+                editFullname.value = usuarioActivo.fullname;
+                editEmail.value = usuarioActivo.email;
+                editPassword.value = "";
+                fondoEditar.classList.add("activo");
+              }
+            });
+
+            // Cerrar el formulario si se hace clic fuera
+            fondoEditar.addEventListener("click", (e) => {
+              if (e.target === fondoEditar) {
+                fondoEditar.classList.remove("activo");
+              }
+            });
+
+            // Evento para guardar cambios del formulario de edición
+            document.getElementById("form-editar").addEventListener("submit", (e) => {
+              e.preventDefault();
+              usuarioActivo.fullname = editFullname.value;
+              usuarioActivo.email = editEmail.value;
+              if (editPassword.value) {
+                usuarioActivo.password = editPassword.value;
+              }
+            
+              // Actualizar en localStorage
+              const index = usuarios.findIndex(u => u.username === usuarioActivo.username);
+              if (index !== -1) {
+                usuarios[index] = usuarioActivo;
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+              }
+
+              if (avatarDataURL) {
+                usuarioActivo.avatar = avatarDataURL;
+              }
+
+            
+              userName.textContent = usuarioActivo.fullname;
+              fondoEditar.classList.remove("activo");
+              alert("Datos actualizados correctamente.");
+            });
+          });
+
+
+
+          
+
+          // Variable global para saber qué usuario está logueado
+          let usuarioActivo = null;
+
+          
+          
+
+          
+
+
+          // Actualizar usuario en localStorage
+          function actualizarUsuarioEnStorage(usuario) {
+            const index = usuarios.findIndex((u) => u.username === usuario.username);
+            if (index !== -1) {
+              usuarios[index] = usuario;
+              localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            }
+          }
+
+
+
+        </script>
+
+
+
+    </head>
+
+    <body>
+        <div>
+            <video muted on autoplay loop class="video-background">
+                <source src="./Imagenes/INFINITEVIDEO (1).mp4" type="video/mp4" alt="Video de fondo">
+                
+            </video>
+        </div>
+
+        <nav class="top-bar" >
+          <div class="top-bar-content" id="guest-links">
+              <li class="top-bar-item"><a href="#" id="abrir-login">INICIAR SESION</a></li>
+              <li class="top-bar-item"><a href="#" id="abrir-unirse">UNIRSE</a></li>
+          </div>
+
+          <!-- Cuando el usuario ha iniciado sesión -->
+          <div class="top-bar-content" id="user-links" style="display: none;">
+            <li class="top-bar-item">
+              <li id="user-name"><a href="#">Usuario</a></li>
+              <img id="user-avatar" src="https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180" alt="Avatar" style="border-radius: 50%; vertical-align: middle;">
+
+            </li>
+              <li class="top-bar-item"><a href="#" id="cerrar-sesion">CERRAR SESION</a></li>
+          </div>
+
+        
+        </nav>
+      
+        <div id="fondo-editar" class="fondo-modal">
+          <form class="editar-form" id="editar-form">
+            <h2>Editar cuenta</h2>
+          
+            <div class="avatar-upload-area" id="avatar-upload-area">
+              <label for="avatar-input" class="avatar-label">
+                <span id="avatar-drop-area">Haz clic o arrastra tu imagen aquí</span>
+                <input type="file" id="avatar-input" accept="image/*" />
+                <img id="avatar-preview" src="" />
+              </label>
+              
+            </div>
+          
+            <input type="text" id="edit-fullname" placeholder="Nombre completo" />
+            <input type="email" id="edit-email" placeholder="Correo electrónico" />
+            <input type="password" id="edit-password" placeholder="Nueva contraseña (opcional)" />
+            <button type="submit">Guardar cambios</button>
+          </form>
+        </div>
+      
+        <!-- FONDO OSCURO LOGIN -->
+        <div id="fondo-login" class="fondo-oscuro">
+            <div class="login-container">
+              <h1>LOGIN</h1>
+              <form class="login-form">
+                <div class="form-group">
+                  <label for="login-username">Nombre de usuario</label>
+                  <input type="text" id="login-username" name="username" placeholder="Tu nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                  <label for="login-password">Contraseña</label>
+                  <input type="password" id="login-password" name="password" placeholder="Tu contraseña" required>
+                </div>
+                <div class="form-group checkbox-inline">
+                  <input type="checkbox" name="remember" id="remember">
+                  <label for="remember">Recuérdame</label>
+                </div>
+                <button type="submit" class="login-button">Entrar</button>
+              </form>
+            </div>
+        </div>
+  
+        <!-- FONDO OSCURO REGISTRO -->
+        <div id="fondo-unirse" class="fondo-oscuro">
+          <div class="login-container">
+            <h1>REGISTRO</h1>
+            <form class="login-form" action="/registro" method="POST">
+              <div class="form-group">
+                <label for="fullname">Nombre completo</label>
+                <input type="text" id="fullname" name="fullname" placeholder="Tu nombre completo" required>
+              </div>
+              <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" placeholder="Elige un usuario" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+              </div>
+              <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Crea una contraseña" required>
+              </div>
+              <div class="form-group">
+                <label for="confirm_password">Confirmar contraseña</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Repite la contraseña" required>
+              </div>
+              <div class="form-group checkbox-inline">
+                <input type="checkbox" name="terms" id="terms" required>
+                <label for="terms">Acepto los términos y condiciones</label>
+              </div>
+              <button type="submit" class="login-button">Registrarse</button>
+            </form>
+          </div>
+        </div>
+
+        <nav class="navbar">
+            <div class="navbar-logo">
+                <img src="./Imagenes/Logo.ico" alt="Logo" class="logo">
+                <span class="logo-text" onclick="location.href='INFINITECODE.html';">INFINITECODE</span>
+            </div>
+            <ul class="navbar-links">
+                <li class="dropdown">
+                    <a href="#">CATEGORIAS</a>
+                    <div class="dropdown-menu">
+                      <div class="mega-menu">
+                        <div class="mega-column">
+                          <img src="https://cdn-icons-png.flaticon.com/512/684/684485.png" alt="Componentes" class="dropdown-img">
+                          <h4>Componentes</h4>
+                          <a href="#" data-category="PROCESADORES">Procesadores</a>
+                          <a href="#" data-category="RAM">RAM</a>
+                          <a href="#" data-category="GRAFICAS">Graficas</a>
+                        </div>
+                        <div class="mega-column">
+                          <img src="https://cdn-icons-png.flaticon.com/512/689/689328.png" alt="Almacenamiento" class="dropdown-img">
+                          <h4>Almacenamiento</h4>
+                          <a href="#" data-category="DISCOS DUROS">Discos Duros</a>
+                          <a href="#" data-category="CAJAS">Cajas</a>
+                          
+                        </div>
+                        <div class="mega-column">
+                          <img src="https://cdn-icons-png.flaticon.com/512/5495/5495723.png" alt="Otros" class="dropdown-img">
+                          <h4>Otros</h4>
+                          <a href="#" data-category="PORTATILES">Portatiles</a>
+                          <a href="#" data-category="ACCESSORIOS">Accesorios</a>
+                          <a href="#" data-category="REGULADORES">Reguladores</a>
+                        </div>
+                      </div>
+                    </div>
+                </li>
+                  
+                <li class="dropdown">
+                    <a href="#">CARRITO</a>
+                    <div class="dropdown-menu">
+                        <div class="mega-menu">
+                            <div class="mega-column">
+                              <img src="https://pngimg.com/uploads/shopping_cart/shopping_cart_PNG37.png" alt="Otros" class="dropdown-img">
+                              <h4>Carrito</h4>
+                              <a href="Carrito.html">Ver Carrito</a>
+                              <a href="#" id="abrir-historial">Historial de Compras</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="Nosotros.html">SOBRE NOSOTROS</a>
+                    
+                </li>
+
+                
+                
+            </ul>
+
+            <img src="./Imagenes/Sena_img.png" alt="Logo" id=sena>
+        
+        </nav>
+        <div id="historial-modal" class="modal" style="display: none;">
+          <div class="modal-content">
+            <span id="cerrar-historial" class="close">&times;</span>
+            <h3>Historial de compras</h3>
+            <ul id="lista-historial"></ul>
+          </div>
+        </div>
+        
+
+
+        <button id="toggle-search">🔍</button>
+        <!-- Barra de búsqueda oculta inicialmente -->
+        <div class="barra-de-busqueda" id="barraBusqueda">
+          <input type="text" id="searchBar" placeholder="Buscar...">
+          
+        </div>
+
+        <div>
+           
+            <button class="carrito" onclick="location.href='Carrito.html';">🛒
+                <span id="carrito-count">0</span>
+            </button>
+        </div>
+        
+        <div class="Logotext">
+            
+            <h1 class="Logotext">INFINITECODE</h1>
+        
+        </div>
+        <div class="NewText">
+            
+            <h2 class="NewText">Tu Mejor Aliado Para El Gaming</h2>
+
+        </div>
+
+        <div class="Redes">
+
+          <a class="Redes_Youtube" onclick="window.open('https://www.youtube.com/@ceter342');"></a>
+          <a class="Redes_X" onclick="window.open('https://x.com/CETER22');"></a>
+            
+        </div>
+        
+
+        <section class="Nosotros-presentacion">
+          <h1 class="Nosotros-h1">FUNDADORES</h1>
+          <div class="Fundadores_Container">
+            <div class="card">
+              <img src="./Imagenes/Diego.png" alt="Diego Alejandro Ortega Carbonell">
+              <p><strong>DIEGO ALEJANDRO ORTEGA CARBONELL</strong></p>
+              <p><em>Desarrollador Principal</em></p>
+              
+              
+            </div>
+            <div class="card">
+              <img src="./Imagenes/Cristian_1.jpg" alt="Cristian Camilo Chaparro Sanchez">
+              <p><strong>CRISTIAN CAMILO CHAPARRO SANCHEZ</strong></p>
+              <p><em>Desarrollador Secundario</em></p>
+              
+              
+            </div>
+            <div class="card">
+              <img src="./Imagenes/Mateo.jpg" alt="Mateo Artunduaga Garcia">
+              <p><strong>MATEO ARTUNDUAGA GARCIA</strong></p>
+              <p><em>Diseñador</em></p>
+              
+            </div>
+            <div class="card">
+              <img src="./Imagenes/Camelo.png" alt="Juan David Camelo Rangel">
+              <p><strong>JUAN DAVID CAMELO RANGEL</strong></p>
+              <p><em>Diseñador Secundario</em></p>
+              
+            </div>
+            <div class="card">
+              <img src="./Imagenes/nixon.png" alt="Nixon Rubio">
+              <p><strong>NIXON RUBIO</strong></p>
+              <p><em>random</em></p>
+              
+            </div>
+            
+          </div>
+          <h1 class="Nosotros-h1">INSTRUCTORES</h1>
+          <div class="Fundadores_Container">
+            <div class="card">
+              <img src="./Imagenes/Instructor.png" alt="Andres Felipe Gutierrez Rivera">
+              <p><strong>ANDRES FELIPE GUTIERREZ RIVERA</strong></p>
+              <p><em>Instructor SENA</em></p>
+              
+            </div>
+            <div class="card">
+              <img src="./Imagenes/Instructor.png" alt="Layhonel Ibagón Ortiz">
+              <p><strong>LAYHONEL IBAGÓN ORTIZ</strong></p>
+              <p><em>Instructor SENA</em></p>
+              
+            </div>
+          </div>
+          <div class="card full" style="text-align: center;">
+            <h2>CENTRO DE ELECTRICIDAD, ELECTRONICA Y TELECOMUNICACIONES</h2>
+            <p>Formacion: Tecnico en programacion de Software</p>
+          </div>
+        </section>
+
+        <nav class="navbar-separator">
+          <a href="#mision">MISION</a>
+          <span>/</span>
+          <a href="#problema">PLANTEAMIENTO DEL PROBLEMA</a>
+          <span>/</span>
+          <a href="#objetivos">OBJETIVOS GENERALES</a>
+          <span>/</span>
+          <a href="#objetivos-esp">OBJETIVOS ESPECÍFICOS</a>
+          <span>/</span>
+          <a href="#justificacion">JUSTIFICACION DEL MERCADO</a>
+          <span>/</span>
+          <a href="#requerimientos">INFORME DE REQUERIMIENTOS IEEE</a>
+          <span>/</span>
+          <a href="#diagramas">DIAGRAMAS</a>
+          <span>/</span>
+          <a href="#database">DESPLIEGUE DE LA BASE DE DATOS</a>
+          <span>/</span>
+          <a href="#Scripts">SCRIPTS</a>
+        </nav>
+
+
+        <section class="slide">
+          <div class="mission-section">
+            <h1 id="mision">MISION</h1>
+            <div class="mission-content">
+              <div class="value-card">
+               <i class="mission-icon">🎮</i>
+               <p>En <strong>INFINITECODE</strong> nos comprometemos a revolucionar el mercado gaming, 
+                  proporcionando una plataforma digital confiable que conecta apasionados gamers con 
+                  los mejores productos y servicios del sector.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="vision-section">
+            <h1>VISION</h1>
+            <div class="vision-content">
+              <div class="value-card">
+               <i class="vision-icon">🌟</i>
+               <p>Ser reconocidos globalmente como la plataforma líder en el mercado gaming, 
+                  destacando por nuestra innovación tecnológica, excelencia en servicio al cliente 
+                  y compromiso con la comunidad gamer.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="values-section">
+            <h1>VALORES</h1>
+            <div class="values-grid">
+              <div class="value-card">
+                <i class="value-icon">⌛</i>
+                <h3>Responsabilidad</h3>
+                <p>Cumplimiento puntual y profesional con nuestros compromisos.</p>
+              </div>
+              
+              <div class="value-card">
+                <i class="value-icon">🤝</i>
+                <h3>Colaboracion</h3>
+                <p>Trabajo en equipo efectivo para alcanzar objetivos comunes.</p>
+              </div>
+              
+              <div class="value-card">
+                <i class="value-icon">📚</i>
+                <h3>Aprendizaje</h3>
+                <p>Mejora continua y desarrollo de habilidades.</p>
+              </div>
+              
+              <div class="value-card">
+                <i class="value-icon">❤️</i>
+                <h3>Compromiso</h3>
+                <p>Dedicación total a la satisfacción de nuestros clientes.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        
+
+        <!-- Sitio 1 -->
+        <section class="slide">
+          <h1 id="problema">Planteamiento del Problema del Mercado Gamer</h1>
+          <div class="card full" style="text-align: center;">
+            <h2>Problematica del Mercado Gaming</h2>
+            <p>El mercado gamer enfrenta serios desafíos de accesibilidad y confiabilidad que afectan tanto a consumidores como vendedores especializados.</p>
+          </div>
+      
+          <div class="grid-3">
+            <div class="card">
+              <h3>Escasez De Tiendas Físicas</h3>
+              <p>Limitada disponibilidad de tiendas especializadas en productos gaming de calidad en territorio latinoamericano.</p>
+              <h2 id="tematica">🏪</h2>
+            </div>
+            <div class="card">
+              <h3>Acceso Limitado Productos</h3>
+              <p>Dificultad para encontrar productos especializados y componentes gaming específicos en el mercado local.</p>
+              <h2 id="tematica">🔎</h2>
+            </div>
+            <div class="card">
+              <h3>Compras Poco Confiables</h3>
+              <p>Usuarios recurren a páginas web poco confiables exponiendo sus datos personales y financieros.</p>
+              <h2 id="tematica">⚠️</h2>
+            </div>
+          </div>
+        </section>
+      
+        <!-- Sitio 2 -->
+        <section class="slide">
+          <h1>Problematicas a Resolver</h1>
+          <div class="content">
+            <img src="https://actions.es/wp-content/uploads/2020/02/AdobeStock_278427509-1.jpg" alt="software" class="img-left">
+            <div class="text">
+              <div class="card-2">
+                <h3>Identificacion de Nichos Desatendidos</h3>
+                <p>Las empresas de software enfrentan dificultades para identificar y atender nichos específicos del mercado gaming que requieren soluciones especializadas y personalizadas.</p>
+              </div>
+              <div class="card-2">
+                <h3>Plataformas Comunidades Especificas</h3>
+                <p>Existe una notable carencia de plataformas digitales que atiendan las necesidades particulares de comunidades gaming especializadas y sus requerimientos únicos.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SLIDE 3 -->
+        <section class="slide">
+          <h1>Problema Del Cliente Gamer</h1>
+          <div class="card full" style="text-align: center;">
+            <h3>Desafios Del Consumidor Gamer</h3>
+            <p>Los gamers enfrentan múltiples desafíos para acceder a productos especializados y servicios confiables en el mercado actual.</p>
+            <p>Desde limitaciones geográficas hasta la falta de información adecuada, nuestro enfoque planea evitar esos problemas.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card-3">
+              <h3>Acceso Local Limitado</h3>
+              <p>1. Pocas tiendas especializadas.</p>
+              <p>2. Stock limitado de productos específicos.</p>
+              <p>3. Monopolizacion de tiendas extranjeras.</p>
+            </div>
+            <div class="card-3">
+              <h3>Costos Y Tiempo</h3>
+              <p>1. Altos costos de importación.</p>
+              <p>2. Largas esperas por envíos internacionales.</p>
+              <p>3. Falta de opciones de entrega local.</p>
+            </div>
+            <div class="card-3">
+              <h3>Plataforma unificada</h3>
+              <p>Ausencia de una plataforma centralizada confiable.</p>
+            </div>
+            <div class="card-3">
+              <h3>Experiencia Fragmentada</h3>
+              <p>Necesidad de usar diversos sitios para acceder a productos y servicios.</p>
+            </div>
+            <div class="card-3">
+              <h3>Falta de Confianza</h3>
+              <p>Inseguridad al comprar en sitios no verificados.</p>
+            </div>
+            <div class="card-3">
+              <h3>Soporte Limitado</h3>
+              <p>Escasa asistencia postventa y atención al cliente.</p>
+            </div>
+          </div>
+            
+        </section>
+      
+        <!-- SLIDE 4 -->
+        <section class="slide">
+          <h1 id="objetivos">Objetivos Generales</h1>
+          <div class="card full" style="text-align: center;">
+            <h1>Desarrollar una plataforma digital especializada en el mercado gaming que facilite la compra, venta y acceso a productos y servicios confiables.</h1>
+            <h3>Objetivo General</h3>
+            <p>Crear un ecosistema digital que centralice y optimice la experiencia de compra y comunidad para gamers en todo el mundo.</p>
+            <img src="./Imagenes/Arbol_problemas.png" alt="software" id="Arbol">
+          </div>
+        </section>
+      
+        <!-- SLIDE 5 -->
+        <section class="slide">
+          <h1 id="objetivos-esp">Objetivos Específicos</h1>
+          <div class="grid-3">
+            <div class="card-3">
+              <h2>Interfaz Amigable e intuitiva</h2>
+              <p>Desarrollar una interfaz de usuario moderna, responsiva y facil de navegar que optimice la experiencia del usuario en todos los dispositivos.</p>
+              <h2 id="tematica">🖥️</h2>
+            </div>
+            <div class="card-3">
+              <h3>Generar Comunidad</h3>
+              <p>Crear un espacio para la interacción y colaboración entre gamers.</p>
+              <h2 id="tematica">🤝</h2>
+            </div>
+            
+            <div class="card-3">
+              <h3>Seguridad y Confianza</h3>
+              <p>Incorporar medidas de seguridad robustas para proteger datos y transacciones.</p>
+              <h2 id="tematica">🔒</h2>
+            </div>
+          </div>
+        </section>
+      
+        
+      
+        <!-- SLIDE 6 -->
+        <section class="slide">
+          <h1 id="justificacion">Justificacion Del Mercado</h1>
+          <div class="content-2">
+            <img src="C:\Users\USER\Downloads\CODE INFINITY STORE 2.0 REMASTERED (EL FIN DE UNA ERA)\InfiniteCode\Imagenes\Datos Esa.png" alt="software" class="img-left">
+            <div class="text">
+              <div class="card-2">
+                <h3>Relevancia</h3>
+                <p>Se estima que el 64% de los estadounidenses juega videojuegos regularmente, mientras que Asia representa casi el 50% del mercado, estando latinoamerica con un aproximado del 8% del mercado.</p>
+              </div>
+              <div class="card-2">
+                <h3>Patrimonio</h3>
+                <p>En 2024 esta industria alcanzo un patrimonio de 59.3 billones de dólares.</p>
+              </div>
+              <div class="card-2">
+                <h3>Publico</h3>
+                <p>El público objetivo abarca una amplia gama de edades y géneros, con un enfoque particular en los jóvenes adultos de 18 a 34 años, el 49% de los consumidores habituales.</p>
+              </div>
+              <div class="card-2">
+                <h3>Tendencias</h3>
+                <p>El auge de los juegos móviles, la realidad virtual y aumentada, y el crecimiento de los eSports son tendencias clave que están moldeando el futuro del mercado gaming, además del PC que es el mercado más universal.</p>
+              </div>
+              <div class="card full">
+                <h3>Referencias</h3>
+                <ul>
+                  
+                  <li><a href="https://www.statista.com/markets/424/topic/482/video-games-esports" target="_blank" rel="noopener noreferrer">statista.com</a></li>
+                  <li><a href="https://www.theesa.com/resources/essential-facts-about-the-us-video-game-industry/2025-data/" target="_blank" rel="noopener noreferrer">Informe de datos esenciales de la ESA</a></li>
+                </ul>
+              </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <h1 id="diagramas">Diagrama De Gantt</h1>
+          <img src="./Imagenes/Diagrama_gantt.png" alt="Diagrama de Gantt" class="diagramas">
+          <h1>Diagrama Casos de usos</h1>
+          <img src="./Imagenes/Modelo_casos de uso.png" alt="Diagrama de Casos de Uso" class="diagramas">
+          <h1>modelo entidad relacion</h1>
+          <img src="./Imagenes/gaming_center_db_mer.png" alt="Modelo Entidad Relacion" class="diagramas">
+          <h1>Diagrama De clases</h1>
+          <img src="./Imagenes/diagrama de clases.png" alt="Diagrama De clases" class="diagramas">
+          <h1>Diagrama de objetos</h1>
+          <img src="./Imagenes/diagrama de objetos.png" alt="Diagrama de objetos" class="diagramas">
+          <h1>diagrama de historias de usuarios</h1>
+          <img src="./Imagenes/diagrama historias de usuarios.png" alt="Diagrama de historias de usuarios" class="diagramas">
+          <h1>diagrama De actividades</h1>
+          <img src="./Imagenes/diagrama de actividades.webp" alt="Diagrama De actividades" class="diagramas">
+          <h1>Modelo Entidad Relacional</h1>
+          <img src="./Imagenes/modelo_entidad_relacional.png" alt="Diagrama De etn" class="diagramas">
+        </section>
+
+        <section class="slide">
+          <h1 id="requerimientos">Informe De Requerimientos IEEE</h1>
+          <div class="content">
+            <img src="./Imagenes/IEEE.png" alt="software" onclick="window.open('Plantilla Formato IEEE 830 Completo.docx.pdf', '_blank')" class="img-left" style="width: auto; height: auto; cursor: pointer;">
+            <div class="text">
+              <div class="card-2">
+                <h3>Requisitos Funcionales Y No Funcionales</h3>
+                <p>Documentacion Completa siguiendo el esquema IEEE, esto incluye todos los requisitos funcionales y no funcionales del sistema, como lo serian: Registrar usuarios, buscar en el catalogo de productos, poner una reseña etc.</p>
+              </div>
+              <div class="card-requisitos">
+                <h3>Requisitos Funcionales</h3>
+                <p><h4>Requisito funcional 1:</h4>    
+                El sistema permitirá a los usuarios registrarse mediante un formulario con correo electrónico y contraseña, o utilizando cuentas de redes sociales como Google y Facebook. Deberá validar campos obligatorios, evitar duplicidad de cuentas y confirmar por correo electrónico.
+                              
+                <p><h4>Requisito funcional 2:</h4>
+                Las tiendas registradas podrán publicar, modificar o eliminar productos desde un panel de control. Cada producto deberá contener nombre, imagen, precio, descripción, disponibilidad y categoría.
+                              
+                <p><h4>Requisito funcional 3:</h4>
+                Los usuarios podrán buscar productos usando filtros por categoría, tienda, precio, popularidad y puntuación. La búsqueda debe responder rápidamente y ofrecer resultados relevantes.
+
+                <p><h4>Requisito funcional 4:</h4>
+                El sistema permitirá realizar compras mediante tarjeta de crédito/débito, PSE, billeteras digitales y otras pasarelas como PayU. Las transacciones deben ser seguras y generar comprobante.
+
+                <p><h4>Requisito funcional 5:</h4>
+                Los usuarios podrán valorar productos (con estrellas del 1 al 5) y escribir comentarios que serán visibles públicamente. El sistema debe moderar contenido ofensivo o fraudulento.
+
+                <p><h4>Requisito funcional 6:</h4>
+                Los usuarios podrán agregar múltiples productos al carrito, revisar el total, modificar cantidades o eliminar artículos antes de realizar la compra final.
+
+                <p><h4>Requisito funcional 7:</h4>
+                El sistema enviará notificaciones sobre promociones, confirmaciones de pedidos, mensajes de vendedores y cambios en el estado de las compras.
+
+                <p><h4>Requisito funcional 8:</h4>
+                Las tiendas dispondrán de un panel desde donde podrán gestionar sus productos, ver pedidos recibidos, actualizar estado de envíos, generar reportes de ventas y responder mensajes de clientes.
+
+                <p><h4>Requisito funcional 9:</h4>
+                Los usuarios podrán gestionar su perfil (nombre, dirección, contraseña, foto, etc.) desde una sección de configuración.
+
+                <p><h4>Requisito funcional 10:</h4>
+                Se permitirá la recuperación de contraseña por medio de correo electrónico con enlaces seguros y de uso único.
+
+                <p><h4>Requisito funcional 11:</h4>
+                El sistema soportará múltiples sesiones activas del mismo usuario en distintos dispositivos, con gestión de seguridad.
+
+                <p><h4>Requisito funcional 12:</h4>
+                Los usuarios podrán hacer seguimiento al estado de sus pedidos desde su perfil (procesando, enviado, entregado).
+
+                <p><h4>Requisito funcional 13:</h4>
+                Será posible cancelar pedidos que aún no hayan sido despachados, con reintegro automático si el pago ya fue realizado.
+
+                <p><h4>Requisito funcional 14:</h4>
+                Se habilitará un sistema de solicitudes de devolución y reembolso para compras realizadas, sujeto a políticas de cada tienda.
+
+                <p><h4>Requisito funcional 15:</h4>
+                Se integrará una sección de soporte al cliente con preguntas frecuentes, chatbot y formulario de contacto.
+                
+                <p><h4>Requisito funcional 16:</h4>
+                Los usuarios podrán comparar características entre hasta 3 productos simultáneamente antes de comprarlos.
+
+                <p><h4>Requisito funcional 17:</h4>
+                El sistema permitirá guardar productos como favoritos para consulta posterior desde el perfil del usuario.
+
+                <p><h4>Requisito funcional 18:</h4>
+                En el checkout se podrán aplicar cupones de descuento vigentes, con validación automática y actualización del total.
+
+                <p><h4>Requisito funcional 19:</h4>
+                Los usuarios registrados acumularán puntos por compras, los cuales podrán canjear por descuentos o recompensas.
+
+                <p><h4>Requisito funcional 20:</h4>
+                Se permitirá compartir productos y comentarios directamente a redes sociales desde la plataforma.
+
+                <p><h4>Requisito funcional 21:</h4>
+                Las tiendas podrán gestionar su inventario desde el panel, recibiendo alertas por productos con bajo stock.
+
+                <p><h4>Requisito funcional 22:</h4>
+                Las tiendas podrán pagar para destacar productos en secciones visibles de la plataforma (publicidad interna).
+
+                <p><h4>Requisito funcional 23:</h4>
+                La aplicación móvil tendrá búsqueda por voz para facilitar la interacción desde dispositivos móviles.
+
+                <p><h4>Requisito funcional 24:</h4>
+                Solo los usuarios que hayan comprado un producto podrán dejar una reseña en el mismo (reseña verificada).
+
+                <p><h4>Requisito funcional 25:</h4>
+                El sistema incluirá una interfaz para la administración de categorías de productos, ordenamiento y subcategorías.
+
+                <p><h4>Requisito funcional 26:</h4>
+                Se guardará un historial de navegación, compras y búsquedas del usuario para personalizar la experiencia.
+
+                <p><h4>Requisito funcional 27:</h4>
+                El sistema utilizará la ubicación del usuario para mostrar productos relevantes y tiendas cercanas.
+
+                <p><h4>Requisito funcional 28:</h4>
+                Los usuarios podrán elegir qué tipo de notificaciones recibir (email, push, SMS) desde su configuración.
+
+                <p><h4>Requisito funcional 29:</h4>
+                Cada tienda podrá acceder a estadísticas de ventas, visitas a productos, e informes por periodo.
+
+                <p><h4>Requisito funcional 30:</h4>
+                Usuarios y tiendas podrán crear tickets para soporte técnico, con seguimiento del estado del caso.
+
+                <p><h4>Requisito funcional 31:</h4>
+                Se integrarán servicios de envío para mostrar costos y tiempos estimados de entrega al cliente.
+
+                <p><h4>Requisito funcional 32:</h4>
+                Se habilitará un modo oscuro que podrá activarse manualmente o según la configuración del sistema operativo.</p>
+            </div>
+            <div class="card-requisitos">
+              <h3>Requisitos No Funcionales</h3>
+                <p><h4>Requisitos No Funcionales 1:</h4>
+                El sistema deberá responder al 95% de las solicitudes en menos de 2 segundos, incluso bajo condiciones de carga moderada. Las operaciones críticas, como el inicio de sesión, búsqueda de productos y proceso de pago, deberán ejecutarse con fluidez para garantizar una experiencia de usuario rápida y eficiente. El rendimiento será monitoreado mediante herramientas de análisis y métricas de rendimiento en tiempo real.</p>
+
+                <p><h4>Requisitos No Funcionales 2:</h4>
+                La plataforma implementará cifrado SSL/TLS para todas las comunicaciones y encriptación bcrypt para contraseñas de usuario. Se emplearán políticas de autenticación seguras, validación de sesiones, y control de permisos de acceso por rol. Además, se incluirán mecanismos de protección contra ataques comunes como SQL Injection, Cross-Site Scripting (XSS) y Phishing, garantizando la integridad y confidencialidad de los datos almacenados</p>
+                
+                <p><h4>Requisitos No Funcionales 3:</h4>
+                El sistema deberá garantizar una disponibilidad mínima del 99.5% mensual, excluyendo los periodos de mantenimiento programado. Se implementarán servidores escalables en la nube con balanceo de carga y copias de respaldo automáticas para asegurar la continuidad del servicio y la recuperación rápida ante fallos o caídas inesperadas.</p>
+                
+                <p><h4>Requisitos No Funcionales 4:</h4>
+                La aplicación deberá ser completamente funcional en navegadores modernos como Google Chrome, Mozilla Firefox y Microsoft Edge, además de sistemas operativos móviles Android e iOS. Será desarrollada con tecnologías multiplataforma (React, Node.js y Flutter), asegurando su correcto funcionamiento en diferentes dispositivos sin modificaciones extensas del código.</p>
+
+                <p><h4>Requisitos No Funcionales 5:</h4>
+                El sistema deberá cumplir con las leyes 1581 de 2012 (protección de datos personales) y 527 de 1999 (comercio electrónico). Esto incluye la correcta gestión del consentimiento del usuario, el manejo seguro de la información personal y la implementación de políticas de privacidad y términos de uso claros y accesibles.</p>
+
+                <p><h4>Requisitos No Funcionales 6:</h4>
+                La interfaz principal del sistema estará disponible en idioma español, adaptada al público latinoamericano. En futuras versiones, se podrá ampliar la compatibilidad multilingüe (inglés y portugués) para facilitar la expansión internacional de la plataforma.</p>
+
+                <p><h4>Requisitos No Funcionales 7:</h4>
+                El código deberá estar documentado, modular y estructurado para facilitar su comprensión, depuración y mejora continua. Se utilizarán buenas prácticas de programación, control de versiones (Git), y pruebas automatizadas para reducir errores y asegurar la estabilidad del sistema durante futuras actualizaciones o expansiones.</p>
+
+                <p><h4>Requisitos No Funcionales 8:</h4>
+                El sistema deberá registrar automáticamente eventos relevantes como accesos, errores, modificaciones de datos, y operaciones de pago en un módulo de auditoría interno. Estos registros estarán disponibles únicamente para administradores autorizados y servirán para la detección de incidentes de seguridad, trazabilidad de acciones y cumplimiento normativo.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <h1 id="Scripts">Scripts</h1>
+          <div class="container">
+            <pre><code class="language-sql">
+              -- =========================
+              -- SCRIPT TCL (Transaction Control Language)
+              -- =========================
+              -- Verificar que la base de datos existe antes de usarla
+              USE gaming_center;
+              
+              -- MEJORAS IMPLEMENTADAS EN ESTE SCRIPT:
+              -- 1. Generación automática de IDs únicos (order_number, payment_reference)
+              -- 2. Manejo de errores de Foreign Key constraints  
+              -- 3. Prevención de duplicados en campos UNIQUE
+              -- 4. Validaciones previas antes de INSERT/UPDATE
+              -- 5. Uso de ROW_COUNT() para verificar éxito de operaciones
+              -- 6. Timestamps con microsegundos + Connection ID para unicidad
+              -- 7. Sintaxis compatible con MariaDB (sin IF...THEN ni WHILE)
+              -- 8. Operaciones idempotentes (ejecutables múltiples veces)
+              
+              -- Deshabilitar autocommit para control manual de transacciones
+              SET autocommit = 0;
+              -- Deshabilitar safe update mode temporalmente
+              SET SQL_SAFE_UPDATES = 0;
+              
+              -- Ejemplo de transacción exitosa (crear pedido completo)
+              START TRANSACTION;
+              
+              -- Verificar que el usuario y tienda existen
+              SELECT @user_exists := COUNT(*) FROM users WHERE user_id = 1;
+              SELECT @store_exists := COUNT(*) FROM stores WHERE store_id = 1;
+              SELECT @product_exists := COUNT(*) FROM products WHERE product_id = 3;
+              
+              -- Generar número de pedido único usando timestamp
+              SET @order_number = CONCAT('ORD-', DATE_FORMAT(NOW(), '%Y%m%d-%H%i%s'));
+              
+              -- Verificar que el número de pedido no existe
+              SELECT @order_number_exists := COUNT(*) FROM orders WHERE order_number = @order_number;
+              
+              -- Calcular si podemos proceder (1 = sí, 0 = no)
+              SET @can_proceed = (@user_exists > 0 AND @store_exists > 0 AND @product_exists > 0 AND @order_number_exists = 0);
+              
+              -- Solo insertar si todas las condiciones se cumplen
+              -- Usar WHERE con la condición calculada
+              INSERT INTO orders (user_id, store_id, order_number, status, total_amount)
+              SELECT 1, 1, @order_number, 'processing', 350000.00
+              WHERE @can_proceed = 1;
+              
+              -- Verificar si se insertó el pedido
+              SELECT @rows_inserted := ROW_COUNT();
+              
+              -- Solo continuar si se insertó el pedido
+              SET @new_order_id = LAST_INSERT_ID();
+              
+              -- Insertar items del pedido solo si el pedido fue creado
+              INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+              SELECT @new_order_id, 3, 1, 350000.00, 350000.00
+              WHERE @rows_inserted > 0;
+              
+              -- Actualizar inventario solo si el pedido fue creado
+              UPDATE inventory 
+              SET stock = stock - 1
+              WHERE product_id = 3 AND stock >= 1 AND @rows_inserted > 0;
+              
+              -- Verificar resultado y mostrar mensaje
+              SELECT 
+                CASE 
+                  WHEN @rows_inserted > 0 THEN CONCAT('Pedido creado exitosamente: ', @order_number)
+                  ELSE 'Error: No se pudo crear el pedido. Verificar condiciones.'
+                END AS resultado;
+              
+              -- Confirmar cambios solo si todo fue exitoso
+              COMMIT;
+              
+              -- Ejemplo de transacción revertida (manejo de errores)
+              START TRANSACTION;
+              
+              -- Intentar actualizar inventario de producto existente
+              UPDATE inventory 
+              SET stock = stock - 5 
+              WHERE product_id = 1 AND stock >= 5;
+              
+              -- Verificar si se afectaron filas
+              SELECT ROW_COUNT() AS rows_affected;
+              
+              -- DEMOSTRACIÓN DE ERROR: Intentar insertar pago con order_id inexistente
+              -- Este INSERT fallará intencionalmente para demostrar ROLLBACK
+              -- Error esperado: 1452 - Cannot add or update a child row: foreign key constraint fails
+              -- Descomenta la siguiente línea para probar el error:
+              -- INSERT INTO payments (order_id, payment_method, payment_reference, amount, status)
+              -- VALUES (999, 'Tarjeta', 'REF999', 200000.00, 'approved');
+              
+              -- Alternativa segura: verificar que existe el pedido antes de insertar
+              SELECT COUNT(*) INTO @order_exists FROM orders WHERE order_id = 1;
+              
+              -- Generar referencia única para evitar duplicados
+              SET @unique_payment_ref = CONCAT('REF-TCL-', UNIX_TIMESTAMP(), '-', CONNECTION_ID());
+              
+              -- Insertar pago solo si el pedido existe
+              -- Usar WHERE en lugar de IF...THEN
+              INSERT INTO payments (order_id, payment_method, payment_reference, amount, status)
+              SELECT 1, 'Tarjeta', @unique_payment_ref, 200000.00, 'approved'
+              WHERE @order_exists > 0;
+              
+              ... (Quedan 224 líneas)
+            </code></pre>
+            <div>
+             <h3>DDL (Data Definition Language) → definicion de la estructura (tablas, indices, etc.).</h3>
+             <ol>
+               <li>Crear tablas con relaciones y restricciones</li>
+               <li>Alterar tablas para agregar o modificar columnas</li>
+               <li>Crear o eliminar índices y vistas</li>
+             </ol>
+            </div>
+          </div>
+          <div class="container">
+            <pre><code class="language-sql">
+              -- =========================
+              -- SCRIPT DCL (Data Control Language)
+              -- =========================
+              -- Verificar que la base de datos existe antes de usarla
+              USE gaming_center;
+              
+              -- Verificar si los usuarios ya existen antes de crearlos
+              -- Crear usuario de solo lectura
+              DROP USER IF EXISTS 'read_user'@'localhost';
+              CREATE USER 'read_user'@'localhost' IDENTIFIED BY 'read123';
+              GRANT SELECT ON gaming_center.* TO 'read_user'@'localhost';
+              FLUSH PRIVILEGES;
+              
+              -- Crear usuario administrador parcial
+              DROP USER IF EXISTS 'store_manager'@'localhost';
+              CREATE USER 'store_manager'@'localhost' IDENTIFIED BY 'storepass';
+              GRANT SELECT, INSERT, UPDATE, DELETE ON gaming_center.products TO 'store_manager'@'localhost';
+              GRANT SELECT, INSERT, UPDATE, DELETE ON gaming_center.inventory TO 'store_manager'@'localhost';
+              GRANT SELECT, INSERT, UPDATE ON gaming_center.orders TO 'store_manager'@'localhost';
+              GRANT SELECT ON gaming_center.order_items TO 'store_manager'@'localhost';
+              FLUSH PRIVILEGES;
+              
+              -- Revocar permisos específicos
+              REVOKE INSERT ON gaming_center.orders FROM 'store_manager'@'localhost';
+              FLUSH PRIVILEGES;
+              
+              -- Crear un usuario adicional para demostración
+              DROP USER IF EXISTS 'demo_user'@'localhost';
+              CREATE USER 'demo_user'@'localhost' IDENTIFIED BY 'demo123';
+              GRANT SELECT ON gaming_center.products TO 'demo_user'@'localhost';
+              GRANT SELECT ON gaming_center.categories TO 'demo_user'@'localhost';
+              
+              -- Eliminar usuarios de prueba
+              DROP USER IF EXISTS 'test_user'@'localhost';
+              DROP USER IF EXISTS 'demo_user'@'localhost';
+              FLUSH PRIVILEGES;
+            </code></pre>
+            <div>
+             <h3>DML (Data Manipulation Language) → insercion/actualizacion/borrado de datos en la estructura ya creada.</h3>
+             <ol>
+               <li>Insertar datos de ejemplo</li>
+               <li>Actualizar registros según condiciones</li>
+               <li>Eliminar datos específicos</li>
+             </ol>
+            </div>
+          </div>
+          <div class="container">
+            <pre><code class="language-sql">
+              -- =========================
+              -- SCRIPT DQL (Data Query Language)
+              -- =========================
+              -- Verificar que la base de datos existe antes de usarla
+              USE gaming_center;
+              
+              -- Consultar todos los productos con inventario disponible
+              SELECT p.product_id, p.name, i.stock
+              FROM products p
+              JOIN inventory i ON p.product_id = i.product_id
+              WHERE i.stock > 0
+              ORDER BY i.stock DESC;
+              
+              -- Consultar pedidos por cliente con JOIN
+              SELECT o.order_number, u.email AS cliente, o.total_amount, o.status
+              FROM orders o
+              JOIN users u ON o.user_id = u.user_id
+              WHERE u.role = 'customer';
+              
+              -- Consultar ingresos totales por tienda
+              SELECT s.store_name, SUM(o.total_amount) AS total_ventas
+              FROM stores s
+              JOIN orders o ON s.store_id = o.store_id
+              GROUP BY s.store_id
+              HAVING total_ventas > 1000000;
+              
+              -- Subconsulta: productos sin reseñas (mejorada para manejar NULL)
+              SELECT p.name, p.price
+              FROM products p
+              WHERE p.product_id NOT IN (
+                SELECT DISTINCT r.product_id 
+                FROM reviews r 
+                WHERE r.product_id IS NOT NULL
+              );
+              
+              -- Top 3 productos más caros
+              SELECT name, price, currency
+              FROM products
+              ORDER BY price DESC
+              LIMIT 3;
+              
+              -- Consulta adicional: productos con inventario bajo
+              SELECT p.name, i.stock, i.minimum_stock
+              FROM products p
+              INNER JOIN inventory i ON p.product_id = i.product_id
+              WHERE i.stock <= i.minimum_stock
+              ORDER BY i.stock ASC;
+            </code></pre>
+            <div>
+             <h3>DQL (Data Query Language) → consulta de los datos para ver que todo esta correcto.</h3>
+             <ol>
+               <li>Consultar registros con SELECT y condiciones específicas</li>
+               <li>Usar JOIN para combinar datos entre tablas</li>
+               <li>Agrupar y contar resultados (GROUP BY)</li>
+             </ol>
+            </div>
+          </div>
+          <div class="container">
+            <pre><code class="language-sql">
+              -- =========================
+              -- SCRIPT VDL (View Definition Language)
+              -- =========================
+              -- Verificar que la base de datos existe antes de usarla
+              USE gaming_center;
+              
+              -- Vista de productos con inventario (mejorada con más información)
+              CREATE OR REPLACE VIEW view_products_inventory AS
+              SELECT 
+                p.product_id, 
+                p.name, 
+                p.price, 
+                p.currency,
+                i.stock, 
+                i.minimum_stock,
+                CASE 
+                  WHEN i.stock = 0 THEN 'Sin stock'
+                  WHEN i.stock <= i.minimum_stock THEN 'Stock bajo'
+                  ELSE 'Stock normal'
+                END AS stock_status
+              FROM products p
+              INNER JOIN inventory i ON p.product_id = i.product_id;
+              
+              -- Vista de clientes con sus pedidos
+              CREATE OR REPLACE VIEW view_customer_orders AS
+              SELECT u.email, o.order_number, o.status, o.total_amount, o.created_at
+              FROM users u
+              JOIN orders o ON u.user_id = o.user_id
+              WHERE u.role = 'customer';
+              
+              -- Vista de ingresos por tienda (mejorada)
+              CREATE OR REPLACE VIEW view_sales_by_store AS
+              SELECT 
+                s.store_id,
+                s.store_name, 
+                COUNT(o.order_id) AS total_orders,
+                SUM(o.total_amount) AS total_ventas,
+                AVG(o.total_amount) AS promedio_venta
+              FROM stores s
+              LEFT JOIN orders o ON s.store_id = o.store_id
+              GROUP BY s.store_id, s.store_name;
+              
+              -- Vista de productos con promedio de reseñas (corregida)
+              CREATE OR REPLACE VIEW view_products_reviews AS
+              SELECT 
+                p.product_id,
+                p.name, 
+                COUNT(r.review_id) AS total_reviews, 
+                COALESCE(ROUND(AVG(r.rating), 2), 0) AS avg_rating,
+                s.store_name
+              FROM products p
+              LEFT JOIN reviews r ON p.product_id = r.product_id
+              INNER JOIN stores s ON p.store_id = s.store_id
+              GROUP BY p.product_id, p.name, s.store_name;
+              
+              -- Recrear la vista de ventas por tienda (para demostrar DROP y CREATE)
+              DROP VIEW IF EXISTS view_sales_by_store;
+              
+              -- Crear vista de resumen de ventas por tienda
+              CREATE VIEW view_sales_by_store AS
+              SELECT 
+                s.store_id,
+                s.store_name, 
+                COUNT(o.order_id) AS total_orders,
+                COALESCE(SUM(o.total_amount), 0) AS total_ventas,
+                COALESCE(AVG(o.total_amount), 0) AS promedio_venta
+              FROM stores s
+              LEFT JOIN orders o ON s.store_id = o.store_id
+              WHERE o.status NOT IN ('cancelled', 'returned') OR o.status IS NULL
+              GROUP BY s.store_id, s.store_name;
+
+            </code></pre>
+            <div>
+             <h3>VDL (View Definition Language) → creacion de vistas basadas en la estructura y datos ya cargados.</h3>
+             <ol>
+               <li>Definir vistas para consultas especializadas</li>
+               <li>Consultar vistas como si fueran tablas</li>
+             </ol>
+            </div>
+          </div>
+          <div class="container">
+            <pre><code class="language-sql">
+              -- =========================
+              -- SCRIPT DQL (Data Query Language)
+              -- =========================
+              -- Verificar que la base de datos existe antes de usarla
+              USE gaming_center;
+              
+              -- Consultar todos los productos con inventario disponible
+              SELECT p.product_id, p.name, i.stock
+              FROM products p
+              JOIN inventory i ON p.product_id = i.product_id
+              WHERE i.stock > 0
+              ORDER BY i.stock DESC;
+              
+              -- Consultar pedidos por cliente con JOIN
+              SELECT o.order_number, u.email AS cliente, o.total_amount, o.status
+              FROM orders o
+              JOIN users u ON o.user_id = u.user_id
+              WHERE u.role = 'customer';
+              
+              -- Consultar ingresos totales por tienda
+              SELECT s.store_name, SUM(o.total_amount) AS total_ventas
+              FROM stores s
+              JOIN orders o ON s.store_id = o.store_id
+              GROUP BY s.store_id
+              HAVING total_ventas > 1000000;
+              
+              -- Subconsulta: productos sin reseñas (mejorada para manejar NULL)
+              SELECT p.name, p.price
+              FROM products p
+              WHERE p.product_id NOT IN (
+                SELECT DISTINCT r.product_id 
+                FROM reviews r 
+                WHERE r.product_id IS NOT NULL
+              );
+              
+              -- Top 3 productos más caros
+              SELECT name, price, currency
+              FROM products
+              ORDER BY price DESC
+              LIMIT 3;
+              
+              -- Consulta adicional: productos con inventario bajo
+              SELECT p.name, i.stock, i.minimum_stock
+              FROM products p
+              INNER JOIN inventory i ON p.product_id = i.product_id
+              WHERE i.stock <= i.minimum_stock
+              ORDER BY i.stock ASC;
+
+
+            </code></pre>
+            <div>
+             <h3>DCL (Data Control Language) → definiendo permisos/accesos una vez que la estructura, los datos y vistas estan listas.</h3>
+             <ol>
+               <li>Otorgar y revocar permisos a usuarios</li>
+               <li>Consultar privilegios existentes</li>
+             </ol>
+            </div>
+          </div>
+          <div class="container">
+            <pre><code class="language-sql">
+              -- =========================
+              -- SCRIPT DML
+              -- =========================
+              -- Verificar que la base de datos existe antes de usarla
+              USE gaming_center;
+                          
+              -- Deshabilitar safe update mode temporalmente para operaciones UPDATE/DELETE
+              SET SQL_SAFE_UPDATES = 0;
+                          
+              -- Insertar nuevos usuarios
+              INSERT INTO users (email, password_hash, role, is_email_confirmed)
+              VALUES
+                ('cliente2@example.com','$2y$12$hashdemo4','customer',1),
+                ('tienda2_owner@example.com','$2y$12$hashdemo5','store_owner',1);
+                          
+              -- Insertar perfiles para los nuevos usuarios
+              INSERT INTO user_profiles (user_id, first_name, last_name, phone, address)
+              VALUES
+                (4, 'Ana', 'López', '+57-3000000004', 'Calle 4 #4-04, Cali'),
+                (5, 'Carlos', 'Ruiz', '+57-3000000005', 'Calle 5 #5-05, Barranquilla');
+                          
+              -- Insertar nuevo producto (verificar que warranty_months existe tras ALTER TABLE)
+              INSERT INTO products (store_id, category_id, name, slug, description, price, warranty_months)
+              VALUES (1, 3, 'Teclado Mecánico RGB', 'teclado-rgb', 'Teclado mecánico retroiluminado', 350000.00, 24);
+                          
+              -- Insertar reseña (verificar que el producto y usuario existen)
+              INSERT INTO reviews (product_id, user_id, rating, title, comment, verified_purchase)
+              VALUES (2, 4, 4, 'Bueno pero costoso', 'Buen rendimiento aunque un poco caro', 1);
+                          
+              -- Insertar inventario para el nuevo producto
+              INSERT INTO inventory (product_id, stock, minimum_stock)
+              VALUES (3, 25, 5);
+                          
+              -- Actualizar stock de producto (con verificación de stock suficiente)
+              UPDATE inventory
+              SET stock = stock - 2
+              WHERE product_id = 1 AND stock >= 2;
+                          
+              -- Actualizar estado de pedido (con verificación de existencia)
+              UPDATE orders
+              SET status = 'shipped', updated_at = CURRENT_TIMESTAMP
+              WHERE order_number = 'ORD-20250901-0001' AND status = 'processing';
+                          
+              -- Eliminar reseña específica (con mayor especificidad)
+              DELETE FROM reviews
+              WHERE product_id = 2 AND user_id = 4 AND rating = 4;
+                          
+              -- Eliminar items del carrito antes de eliminar el carrito
+              DELETE FROM cart_items WHERE cart_id IN (SELECT cart_id FROM carts WHERE user_id = 3);
+                          
+              -- Eliminar carrito de un usuario específico
+              DELETE FROM carts WHERE user_id = 3;
+                          
+              -- Rehabilitar safe update mode
+              SET SQL_SAFE_UPDATES = 1;
+                          
+            </code></pre>
+            <div>
+             <h3>TCL (Transaction Control Language) → operaciones transaccionales que aseguraran integridad al manipular los datos, rollback, commit, etc.</h3>
+             <ol>
+               <li>Iniciar transacciones para múltiples operaciones</li>
+               <li>Confirmar (COMMIT) o deshacer (ROLLBACK) cambios</li>
+               <li>Garantizar integridad ante errores</li>
+             </ol>
+            </div>
+
+            
+        </section>
+        <h1>CODIGO DE LA BASE DE DATOS</h1>
+        <img src="./Imagenes/gaming_center_db_codigo.jpg" alt="Codigo" class="diagramas">
+
+        <section class="slide">
+          <h1 id="database">Despliegue De La Base De Datos</h1>
+          <video width="1000" height="auto" style="border: white solid 2px; border-radius: 18px;" controls>
+            <source src="./Imagenes/Sql_video.mp4" type="video/mp4">
+            
+            tu navegador no soporta este video.
+          </video>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section about">
+                    <h3>INFINITECODE</h3>
+                    <p>Tu mejor aliado para el gaming. Encuentra los mejores productos para llevar tu experiencia al siguiente nivel.</p>
+                </div>
+                <div class="footer-section links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="INFINITECODE.html">Inicio</a></li>
+                        
+                        <li><a href="Nosotros.html">Sobre Nosotros</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-section social">
+                    <h4>Síguenos</h4>
+                    <div class="social-icons">
+                        <a href="https://www.youtube.com/@ceter342" target="_blank">
+                            <img src="./Imagenes/Youtube.png" alt="YouTube">
+                        </a>
+                        <a href="https://x.com/CETER22" target="_blank">
+                            <img src="./Imagenes/Xlog.jpg" alt="X">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 INFINITECODE. Todos los derechos reservados. | <a href="Términos y Condiciones (1).pdf" target="_blank">Términos y Condiciones</a> | <a href="Politicas_de_Privacidad_GamingCenter_v2.pdf" target="_blank">Política de Privacidad</a></p>
+            </div>
+        </footer>
+
+
+        <audio id="bgMusic" loop>
+            <source src="./Imagenes/goku.mp4" type="audio/mp3">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        
+
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+              const audio = document.getElementById('bgMusic');
+              
+              // Intenta reproducir tan pronto como se cargue la página
+              try {
+                  audio.play().catch(function(error) {
+                      console.log("Reproducción automática bloqueada por el navegador:", error);
+                      // Reproducir al primer clic en cualquier parte de la página
+                      document.addEventListener('click', function playOnClick() {
+                          audio.play();
+                          document.removeEventListener('click', playOnClick);
+                      }, { once: true });
+                  });
+              } catch(e) {
+                  console.log("Error al intentar reproducir:", e);
+              }
+              
+              // Establecer volumen inicial
+              audio.volume = 0.5;
+          });
+        </script>
+        
+        <script>
+            const abrirLogin = document.getElementById("abrir-login");
+            const fondoLogin = document.getElementById("fondo-login");
+          
+            const abrirUnirse = document.getElementById("abrir-unirse");
+            const fondoUnirse = document.getElementById("fondo-unirse");
+          
+            abrirLogin.addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoLogin.classList.add("activo");
+            });
+          
+            fondoLogin.addEventListener("click", (e) => {
+              if (e.target === fondoLogin) fondoLogin.classList.remove("activo");
+            });
+          
+            abrirUnirse.addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoUnirse.classList.add("activo");
+            });
+          
+            fondoUnirse.addEventListener("click", (e) => {
+              if (e.target === fondoUnirse) fondoUnirse.classList.remove("activo");
+            });
+          
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                fondoLogin.classList.remove("activo");
+                fondoUnirse.classList.remove("activo");
+              }
+            });
+        </script>
+          
+        <script>
+            const toggleButton = document.getElementById("toggle-search");
+            const barra = document.getElementById("barraBusqueda");
+                    
+            toggleButton.addEventListener("click", () => {
+              if (barra.style.display === "block") {
+                barra.style.display = "none";
+              } else {
+                barra.style.display = "block";
+              }
+            });
+        </script>
+
+         <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const avatarDropArea = document.getElementById("avatar-drop-area");
+          
+            avatarInput.addEventListener("change", function () {
+              const file = avatarInput.files[0];
+              if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  avatarPreview.src = e.target.result;
+                  avatarDropArea.style.display = "none"; // 👈 Oculta el texto
+      
+                };
+                reader.readAsDataURL(file);
+              }
+            });
+          });
+
+
+          const editarForm = document.querySelector(".editar-form");
+
+          editarForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+          
+            // Obtener valores del formulario
+            const nuevoNombre = document.getElementById("edit-fullname").value.trim();
+            const nuevoEmail = document.getElementById("edit-email").value.trim();
+            const nuevaPassword = document.getElementById("edit-password").value;
+            const nuevaImagen = document.getElementById("avatar-preview").src;
+          
+            // Validaciones básicas
+            if (!nuevoNombre || !nuevoEmail) {
+              alert("El nombre y correo no pueden estar vacíos.");
+              return;
+            }
+          
+            // Actualizar los datos del usuario activo
+            usuarioActivo.fullname = nuevoNombre;
+            usuarioActivo.email = nuevoEmail;
+            if (nuevaPassword) {
+              usuarioActivo.password = nuevaPassword;
+            }
+            if (nuevaImagen && nuevaImagen.startsWith("data:image/")) {
+              usuarioActivo.avatar = nuevaImagen;
+            }
+          
+            // Actualizar el usuario en el array de usuarios
+            const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            const indice = usuarios.findIndex(u => u.username === usuarioActivo.username);
+            if (indice !== -1) {
+              usuarios[indice] = usuarioActivo;
+              localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            }
+          
+            // Actualizar UI
+            document.getElementById("user-name").textContent = usuarioActivo.fullname;
+            document.getElementById("user-avatar").src = usuarioActivo.avatar || "default.png";
+          
+            // Cerrar modal
+            document.getElementById("fondo-editar").classList.remove("activo");
+            alert("¡Cambios guardados exitosamente!");
+          });
+
+        </script>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+          
+            const guestLinks = document.getElementById("guest-links");
+            const userLinks = document.getElementById("user-links");
+            const userName = document.getElementById("user-name");
+            const userAvatar = document.getElementById("user-avatar");
+          
+            const fondoEditar = document.getElementById("fondo-editar");
+            const editFullname = document.getElementById("edit-fullname");
+            const editEmail = document.getElementById("edit-email");
+            const editPassword = document.getElementById("edit-password");
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const editarForm = document.getElementById("editar-form");
+          
+            if (usuarioActivo) {
+              guestLinks.style.display = "none";
+              userLinks.style.display = "flex";
+              userName.textContent = usuarioActivo.fullname || "Usuario";
+              userAvatar.src = usuarioActivo.avatar || "https://via.placeholder.com/30";
+            
+              // Mostrar datos en formulario de edición
+              userAvatar?.addEventListener("click", () => {
+                if (usuarioActivo) {
+                  editFullname.value = usuarioActivo.fullname || "";
+                  editEmail.value = usuarioActivo.email || "";
+                  editPassword.value = "";
+                  avatarPreview.src = usuarioActivo.avatar || "https://via.placeholder.com/100";
+                  fondoEditar.classList.add("activo");
+                }
+              });
+            
+              // Cerrar modal al hacer clic fuera
+              fondoEditar?.addEventListener("click", (e) => {
+                if (e.target === fondoEditar) {
+                  fondoEditar.classList.remove("activo");
+                }
+              });
+            
+              // Previsualizar imagen al subir avatar
+              avatarInput?.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith("image/")) {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    avatarPreview.src = reader.result;
+                  };
+                  reader.readAsDataURL(file);
+                }
+              });
+            
+              // Guardar cambios del formulario
+              editarForm?.addEventListener("submit", (e) => {
+                e.preventDefault();
+              
+                usuarioActivo.fullname = editFullname.value.trim();
+                usuarioActivo.email = editEmail.value.trim();
+              
+                if (editPassword.value.trim()) {
+                  usuarioActivo.password = editPassword.value.trim();
+                }
+              
+                if (avatarPreview.src && !avatarPreview.src.includes("placeholder")) {
+                  usuarioActivo.avatar = avatarPreview.src;
+                }
+              
+                // Actualizar lista de usuarios
+                const index = usuarios.findIndex(u => u.username === usuarioActivo.username);
+                if (index !== -1) {
+                  usuarios[index] = usuarioActivo;
+                  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+                }
+              
+                // Guardar usuario activo actualizado
+                localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+              
+                // Actualizar UI
+                userName.textContent = usuarioActivo.fullname;
+                userAvatar.src = usuarioActivo.avatar || "https://via.placeholder.com/30";
+                fondoEditar.classList.remove("activo");
+                alert("Datos actualizados correctamente.");
+              });
+            }
+          
+            // Cerrar sesión
+            document.getElementById("cerrar-sesion")?.addEventListener("click", (e) => {
+              e.preventDefault();
+              localStorage.removeItem("usuarioActivo");
+              location.reload();
+            });
+          });
+        </script>
+
+        <script>
+          function mostrarHistorialCompras() {
+              const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+              if (!usuario) {
+                  alert("Debes iniciar sesión para ver tu historial.");
+                  return;
+              }
+            
+              const historialKey = `historialCompras_${usuario.username}`;
+              const historial = JSON.parse(localStorage.getItem(historialKey)) || [];
+              const lista = document.getElementById("lista-historial");
+              lista.innerHTML = "";
+            
+              if (historial.length === 0) {
+                  lista.innerHTML = "<li>No hay compras registradas.</li>";
+                  return;
+              }
+            
+              historial.forEach((compra, compraIndex) => {
+                  const item = document.createElement("li");
+                  item.innerHTML = `
+                      <strong>${compra.fecha}</strong>
+                      <ul>
+                          ${compra.productos.map((p, prodIndex) => `
+                              <li style="display: flex; align-items: center; margin-bottom: 5px;">
+                                  <img src="${p.imagen}" alt="${p.nombre}" style="width: 40px; height: 40px; margin-right: 8px;">
+                                  <span>${p.nombre} - ${p.precio}</span>
+                                  <button class="eliminar-producto-historial" 
+                                      data-compra-index="${compraIndex}" 
+                                      data-prod-index="${prodIndex}" 
+                                      style="margin-left: 10px;">Eliminar</button>
+                              </li>
+                          `).join("")}
+                      </ul>
+                  `;
+                  lista.appendChild(item);
+              });
+            
+              // Delegación de eventos para eliminar productos del historial
+              lista.querySelectorAll(".eliminar-producto-historial").forEach(btn => {
+                  btn.addEventListener("click", function() {
+                      const compraIdx = parseInt(this.getAttribute("data-compra-index"), 10);
+                      const prodIdx = parseInt(this.getAttribute("data-prod-index"), 10);
+                  
+                      // Eliminar el producto del historial
+                      historial[compraIdx].productos.splice(prodIdx, 1);
+                  
+                      // Si la compra queda vacía, eliminar la compra completa
+                      if (historial[compraIdx].productos.length === 0) {
+                          historial.splice(compraIdx, 1);
+                      }
+                    
+                      localStorage.setItem(historialKey, JSON.stringify(historial));
+                      mostrarHistorialCompras();
+                  });
+              });
+          }
+          
+          
+          document.getElementById("abrir-historial").addEventListener("click", (e) => {
+              e.preventDefault();
+              mostrarHistorialCompras();
+              document.getElementById("historial-modal").style.display = "flex";
+          });
+          
+          document.getElementById("cerrar-historial").addEventListener("click", () => {
+              document.getElementById("historial-modal").style.display = "none";
+          });
+        </script>
+
+
+
+
+        
+
+
+
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Calcula el offset ocupado por las barras fijas (top-bar y navbar)
+      const headerOffset = () => {
+        const topBar = document.querySelector('.top-bar');
+        const nav = document.querySelector('.navbar');
+        return (topBar ? topBar.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+      };
+
+      const smoothScrollTo = (target) => {
+        const offset = headerOffset();
+        const top = target.getBoundingClientRect().top + window.pageYOffset - offset - 8; // pequeño margen
+        window.scrollTo({ top, behavior: 'smooth' });
+      };
+
+  // Aplicar solo a los enlaces dentro de .navbar-separator
+  document.querySelectorAll('.navbar-separator a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (!href) return;
+          // solo manejar anclas internas
+          if (href.startsWith('#')) {
+            const id = href.slice(1);
+            const target = document.getElementById(id);
+            if (target) {
+              e.preventDefault();
+              smoothScrollTo(target);
+              // actualizar URL sin recargar
+              history.replaceState(null, '', href);
+            }
+          }
+        });
+      });
+    });
+    </script>
+    </body>
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

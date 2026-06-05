@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+    <!--Este es el codigo, en el apartado head estan las conexiones con css y java ademas de el icono de la pagina :)-->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="Encuentra los mejores productos para gaming en INFINITECODE. Tu mejor aliado para el gaming.">
+        <title>INFINITECODE</title>
+        <link rel="icon" href="./Imagenes/Logo.ico" type="image/x-icon">
+        <link rel="stylesheet" href="infinitecodeconfig.css">
+        <script src="Filtrado.JS" defer></script>
+        <script src="Carritologic.js" defer></script>
+        <script>
+            import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+            // Hacemos la librería accesible globalmente para nuestro script clásico de abajo
+            window.pipeline = pipeline;
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const animatedElements = document.querySelectorAll(".banner, .navbar, .footer, .productos, .Redes, .login-container, barra-de-busqueda, edit-form");
+            
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            const delay = index * 100; // Stagger effect
+                            entry.target.style.setProperty('--delay', `${delay}ms`);
+                            entry.target.classList.add("visible");
+                        } else {
+                            entry.target.classList.remove("visible");
+                        }
+                    });
+                }, {
+                    threshold: 0.1
+                });
+
+                 // Observar elementos que ya existen
+                 document.addEventListener("DOMContentLoaded", () => {
+                   const initialElements = document.querySelectorAll(".product-card, barra-de-busqueda");
+                   initialElements.forEach(el => observer.observe(el));
+                 });
+            
+                animatedElements.forEach(el => observer.observe(el));
+            });
+        </script>
+
+
+        <audio id="bgMusic" loop>
+            <source src="./Imagenes/goku.mp4" type="audio/mp3">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        
+
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+              const audio = document.getElementById('bgMusic');
+              
+              // Intenta reproducir tan pronto como se cargue la página
+              try {
+                  audio.play().catch(function(error) {
+                      console.log("Reproducción automática bloqueada por el navegador:", error);
+                      // Reproducir al primer clic en cualquier parte de la página
+                      document.addEventListener('click', function playOnClick() {
+                          audio.play();
+                          document.removeEventListener('click', playOnClick);
+                      }, { once: true });
+                  });
+              } catch(e) {
+                  console.log("Error al intentar reproducir:", e);
+              }
+              
+              // Establecer volumen inicial
+              audio.volume = 0.5;
+          });
+        </script>
+
+
+
+
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM cargado");
+          
+            // Obtener usuarios guardados en localStorage
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+          
+            // Elementos del DOM para login
+            const loginForm = document.querySelector(".login-form");
+            const loginUsername = document.getElementById("login-username");
+            const loginPassword = document.getElementById("login-password");
+            const guestLinks = document.getElementById("guest-links");
+            const userLinks = document.getElementById("user-links");
+            const userName = document.getElementById("user-name");
+            const userAvatar = document.getElementById("user-avatar");
+            const fondoLogin = document.getElementById("fondo-login");
+            const cerrarSesionBtn = document.getElementById("cerrar-sesion");
+            const fondoEditar = document.getElementById("fondo-editar");
+            const editFullname = document.getElementById("edit-fullname");
+            const editEmail = document.getElementById("edit-email");
+            const editPassword = document.getElementById("edit-password");
+            const editAvatarFile = document.getElementById("edit-avatar-file");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarDropArea = document.getElementById("avatar-drop-area");
+            
+
+            let avatarDataURL = null; // Guardará la imagen como base64
+
+          
+            // Elementos del DOM para registro
+            const registroForm = document.querySelector("#fondo-unirse .login-form");
+            const fullname = document.getElementById("fullname");
+            const username = document.getElementById("username");
+            const email = document.getElementById("email");
+            const password = document.getElementById("password");
+            const confirmPassword = document.getElementById("confirm_password");
+
+            
+
+            
+          
+            // Mostrar área de usuario autenticado
+            const iniciarSesion = (usuario) => {
+            usuarioActivo = usuario; // <- GUARDAMOS EL USUARIO
+            localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+            guestLinks.style.display = "none";
+            userLinks.style.display = "flex";
+            userName.textContent = usuario.fullname;
+            userAvatar.src = usuario.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+            fondoLogin.classList.remove("activo");
+            limpiarFormulario();
+            alert(`Bienvenido, ${usuario.fullname}! Has iniciado sesión exitosamente.`);
+          };
+          
+            // Cerrar sesión
+            const cerrarSesion = () => {
+              localStorage.removeItem("usuarioActivo");
+              usuarioActivo = null;
+              userLinks.style.display = "none";
+              guestLinks.style.display = "flex";
+              userName.textContent = "Usuario";
+              userAvatar.src = usuario.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+              limpiarFormulario();
+              limpiarRegistroFormulario();
+              fondoLogin.classList.remove("activo");
+              document.getElementById("fondo-unirse").classList.remove("activo");
+              alert("Has cerrado sesión exitosamente.");
+            };
+
+            // Al cargar la página
+            document.addEventListener("DOMContentLoaded", () => {
+             usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+             if (usuarioActivo) {
+               guestLinks.style.display = "none";
+               userLinks.style.display = "flex";
+               userName.textContent = usuarioActivo.fullname;
+               userAvatar.src = usuarioActivo.avatar || "https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180";
+             }
+            });
+          
+            // Limpiar formularios
+            const limpiarFormulario = () => {
+              loginUsername.value = "";
+              loginPassword.value = "";
+              
+            };
+          
+            const limpiarRegistroFormulario = () => {
+              fullname.value = "";
+              username.value = "";
+              email.value = "";
+              password.value = "";
+              confirmPassword.value = "";
+            };
+          
+            // Validar login
+            const validarFormulario = () => {
+              if (!loginUsername.value || !loginPassword.value) {
+                alert("Por favor, completa todos los campos.");
+                return null;
+              }
+            
+              const usuarioEncontrado = usuarios.find(
+                (u) => u.username === loginUsername.value && u.password === loginPassword.value
+              );
+            
+              if (!usuarioEncontrado) {
+                alert("Usuario o contraseña incorrectos.");
+                return null;
+              }
+            
+              return usuarioEncontrado;
+            };
+          
+            // Evento de login
+            loginForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+              const usuario = validarFormulario();
+              if (usuario) {
+                iniciarSesion(usuario);
+              }
+            });
+          
+            // Evento de registro
+            registroForm.addEventListener("submit", (e) => {
+              e.preventDefault();
+            
+              if (fullname.value && username.value && email.value && password.value && confirmPassword.value) {
+                if (password.value !== confirmPassword.value) {
+                  alert("Las contraseñas no coinciden. Inténtalo de nuevo.");
+                  return;
+                }
+              
+                const existe = usuarios.find((u) => u.username === username.value);
+                if (existe) {
+                  alert("El nombre de usuario ya está registrado.");
+                  return;
+                }
+              
+                const nuevoUsuario = {
+                  fullname: fullname.value,
+                  username: username.value,
+                  email: email.value,
+                  password: password.value,
+                };
+              
+                usuarios.push(nuevoUsuario);
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+              
+                mostrarToast(`Registro exitoso. Bienvenido, ${nuevoUsuario.fullname}!`);
+                limpiarRegistroFormulario();
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              } else {
+                alert("Por favor, completa todos los campos.");
+              }
+            });
+          
+            // Cerrar sesión
+            cerrarSesionBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              cerrarSesion();
+            });
+          
+            // Abrir login y registro
+            document.getElementById("abrir-login").addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoLogin.classList.add("activo");
+            });
+          
+            document.getElementById("abrir-unirse").addEventListener("click", (e) => {
+              e.preventDefault();
+              document.getElementById("fondo-unirse").classList.add("activo");
+            });
+          
+            // Cerrar modales al hacer clic fuera
+            fondoLogin.addEventListener("click", (e) => {
+              if (e.target === fondoLogin) fondoLogin.classList.remove("activo");
+            });
+          
+            document.getElementById("fondo-unirse").addEventListener("click", (e) => {
+              if (e.target === document.getElementById("fondo-unirse")) {
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              }
+            });
+          
+            // Cerrar modales con tecla Escape
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                fondoLogin.classList.remove("activo");
+                document.getElementById("fondo-unirse").classList.remove("activo");
+              }
+            });
+
+            // Mostrar formulario de edición al hacer clic en el avatar
+            userAvatar.addEventListener("click", () => {
+              if (usuarioActivo) {
+                editFullname.value = usuarioActivo.fullname;
+                editEmail.value = usuarioActivo.email;
+                editPassword.value = "";
+                fondoEditar.classList.add("activo");
+              }
+            });
+
+            // Cerrar el formulario si se hace clic fuera
+            fondoEditar.addEventListener("click", (e) => {
+              if (e.target === fondoEditar) {
+                fondoEditar.classList.remove("activo");
+              }
+            });
+
+            // Evento para guardar cambios del formulario de edición
+            document.getElementById("form-editar").addEventListener("submit", (e) => {
+              e.preventDefault();
+              usuarioActivo.fullname = editFullname.value;
+              usuarioActivo.email = editEmail.value;
+              if (editPassword.value) {
+                usuarioActivo.password = editPassword.value;
+              }
+            
+              // Actualizar en localStorage
+              const index = usuarios.findIndex(u => u.username === usuarioActivo.username);
+              if (index !== -1) {
+                usuarios[index] = usuarioActivo;
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+              }
+
+              if (avatarDataURL) {
+                usuarioActivo.avatar = avatarDataURL;
+              }
+
+            
+              userName.textContent = usuarioActivo.fullname;
+              fondoEditar.classList.remove("activo");
+              alert("Datos actualizados correctamente.");
+            });
+          });
+
+
+
+          
+
+          // Variable global para saber qué usuario está logueado
+          let usuarioActivo = null;
+
+          
+          
+
+          
+
+
+          // Actualizar usuario en localStorage
+          function actualizarUsuarioEnStorage(usuario) {
+            const index = usuarios.findIndex((u) => u.username === usuario.username);
+            if (index !== -1) {
+              usuarios[index] = usuario;
+              localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            }
+          }
+
+
+
+        </script>
+
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+        
+
+
+        
+
+         
+
+        
+
+        
+       
+          
+        
+            
+            
+    </head>
+    <body>
+        <div>
+            <video muted on autoplay loop class="video-background">
+                <source src="./Imagenes/INFINITEVIDEO (1).mp4" type="video/mp4" alt="Video de fondo">
+                
+            </video>
+        </div>
+
+        
+        <!-- Este es el contenedor principal de la pagina, en el se encuentran los botones de la parte superior y el logo de la pagina -->
+        <nav class="top-bar">
+            <div class="top-bar-content" id="guest-links">
+                <li class="top-bar-item"><a href="#" id="abrir-login">INICIAR SESION</a> </li>
+                <li class="top-bar-item"><a href="#" id="abrir-unirse">UNIRSE</a></li>
+            </div>
+
+            <!-- Cuando el usuario ha iniciado sesión -->
+            <div class="top-bar-content" id="user-links" style="display: none;">
+              <li class="top-bar-item">
+                <li id="user-name"><a href="#">Usuario</a></li>
+                <img id="user-avatar" src="https://tse4.mm.bing.net/th?id=OIP.hi0rmjh5xboa8s0-ymm6RwHaHa&pid=Api&P=0&h=180" alt="Avatar" style="border-radius: 50%; vertical-align: middle;">
+                
+              </li>
+                <li class="top-bar-item"><a href="#" id="cerrar-sesion">CERRAR SESION</a></li>
+            </div>
+            
+        </nav>
+        <div id="fondo-editar" class="fondo-modal">
+          <form class="editar-form" id="editar-form">
+            <h2>Editar cuenta</h2>
+          
+            <div class="avatar-upload-area" id="avatar-upload-area">
+              <label for="avatar-input" class="avatar-label">
+                <span id="avatar-drop-area">Haz clic o arrastra tu imagen aquí</span>
+                <input type="file" id="avatar-input" accept="image/*" />
+                <img id="avatar-preview" src="" />
+              </label>
+              
+            </div>
+          
+            <input type="text" id="edit-fullname" placeholder="Nombre completo" />
+            <input type="email" id="edit-email" placeholder="Correo electrónico" />
+            <input type="password" id="edit-password" placeholder="Nueva contraseña (opcional)" />
+            <button type="submit">Guardar cambios</button>
+          </form>
+        </div>
+
+        
+
+        
+        <!-- FONDO OSCURO LOGIN -->
+        <div id="fondo-login" class="fondo-oscuro">
+            <div class="login-container">
+              <h1>LOGIN</h1>
+              <form class="login-form">
+                <div class="form-group">
+                  <label for="login-username">Nombre de usuario</label>
+                  <input type="text" id="login-username" name="username" placeholder="Tu nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                  <label for="login-password">Contraseña</label>
+                  <input type="password" id="login-password" name="password" placeholder="Tu contraseña" required>
+                </div>
+                <div class="form-group checkbox-inline">
+                  <input type="checkbox" name="remember" id="remember">
+                  <label for="remember">Recuérdame</label>
+                </div>
+                <button type="submit" class="login-button">Entrar</button>
+                <div id="google-signin-btn" style="margin-top: 16px;"></div>
+              </form>
+            </div>
+        </div>
+  
+        <!-- FONDO OSCURO REGISTRO -->
+        <div id="fondo-unirse" class="fondo-oscuro">
+          <div class="login-container">
+            <h1>REGISTRO</h1>
+            <form class="login-form">
+              <div class="form-group">
+                <label for="fullname">Nombre completo</label>
+                <input type="text" id="fullname" name="fullname" placeholder="Tu nombre completo" required>
+              </div>
+              <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" placeholder="Elige un usuario" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+              </div>
+              <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Crea una contraseña" required>
+              </div>
+              <div class="form-group">
+                <label for="confirm_password">Confirmar contraseña</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Repite la contraseña" required>
+              </div>
+              <div class="form-group checkbox-inline">
+                <input type="checkbox" name="terms" id="terms" required>
+                <label for="terms">Acepto los términos y condiciones</label>
+              </div>
+              <button type="submit" class="login-button">Registrarse</button>
+            </form>
+          </div>
+        </div>
+        
+        
+                
+        <nav class="navbar">
+            <div class="navbar-logo">
+                <img src="./Imagenes/Logo.ico" alt="Logo" class="logo">
+                <span class="logo-text" onclick="location.href='INFINITECODE.html';">INFINITECODE</span>
+            </div>
+            <ul class="navbar-links">
+                <li class="dropdown">
+                    <a href="#">CATEGORIAS</a>
+                    <div class="dropdown-menu">
+                      <div class="mega-menu">
+                        <div class="mega-column">
+                          <img src="https://cdn-icons-png.flaticon.com/512/684/684485.png" alt="Componentes" class="dropdown-img">
+                          <h4>Componentes</h4>
+                          <a href="#" class="categoria-link" data-category="PROCESADORES">Procesadores</a>
+                          <a href="#" class="categoria-link" data-category="RAM">RAM</a>
+                          <a href="#" class="categoria-link" data-category="GRAFICAS">Graficas</a>
+                        </div>
+                        <div class="mega-column">
+                          <img src="https://cdn-icons-png.flaticon.com/512/689/689328.png" alt="Almacenamiento" class="dropdown-img">
+                          <h4>Almacenamiento</h4>
+                          <a href="#" class="categoria-link" data-category="DISCOS DUROS">Discos Duros</a>
+                          <a href="#" class="categoria-link" data-category="CAJAS">Cajas</a>
+                          
+                        </div>
+                        <div class="mega-column">
+                          <img src="https://cdn-icons-png.flaticon.com/512/5495/5495723.png" alt="Otros" class="dropdown-img">
+                          <h4>Otros</h4>
+                          <a href="#" class="categoria-link" data-category="PORTATILES">Portatiles</a>
+                          <a href="#" class="categoria-link" data-category="ACCESSORIOS">Accesorios</a>
+                          <a href="#" class="categoria-link" data-category="REGULADORES">Reguladores</a>
+                        </div>
+                      </div>
+                    </div>
+                </li>
+                  
+                <li class="dropdown">
+                    <a href="#">CARRITO</a>
+                    <div class="dropdown-menu">
+                        <div class="mega-menu">
+                            <div class="mega-column">
+                              <img src="https://pngimg.com/uploads/shopping_cart/shopping_cart_PNG37.png" alt="Otros" class="dropdown-img">
+                              <h4>Carrito</h4>
+                              <a href="Carrito.html">Ver Carrito</a>
+                              <a href="#" id="abrir-historial">Historial de Compras</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="Nosotros.html">SOBRE NOSOTROS</a>
+                    
+                </li>
+               
+            </ul>
+            
+
+            
+        </nav>
+        <div id="historial-modal" class="modal" style="display: none;">
+          <div class="modal-content">
+            <span id="cerrar-historial" class="close">&times;</span>
+            <h3>Historial de compras</h3>
+            <ul id="lista-historial"></ul>
+          </div>
+        </div>
+
+
+        <button id="toggle-search">🔍</button>
+        <!-- Barra de búsqueda oculta inicialmente -->
+        <div class="barra-de-busqueda" id="barraBusqueda">
+          <input type="text" id="searchBar" placeholder="Buscar...">
+          
+        </div>
+
+
+        
+
+        
+        
+        <div class="Logotext">
+            
+            <h1 class="Logotext">INFINITECODE</h1>
+        
+        </div>
+        <div class="NewText">
+            
+            <h2 class="NewText">Tu Mejor Aliado Para El Gaming</h2>
+
+        </div>
+        <div>
+           
+            <button class="carrito" onclick="location.href='Carrito.html';">🛒
+                <span id="carrito-count">0</span>
+            </button>
+        </div>
+        <!-- Aqui se encuentran los botones de las categorias de los productos-->
+        <div class="categorias-banners">
+            <div class="banner banner-cajas">
+                <img src="https://i.blogs.es/ed3046/a01/450_1000.webp" alt="Cajas">
+                <h3>CAJAS</h3>
+            </div>
+            <div class="banner banner-ram">
+                <img src="https://tse3.mm.bing.net/th?id=OIP.17qcOLPSLQDjf2SGYewUqAHaEK&pid=Api&P=0&h=180" alt="RAM">
+                <h3>RAM</h3>
+            </div>
+            <div class="banner banner-procesadores">
+                <img src="https://img.interempresas.net/fotos/3068027.jpeg" alt="Procesadores">
+                <h3>PROCESADORES</h3>
+            </div>
+            <div class="banner banner-discos">
+                <img src="https://www.geekno.com/wp-content/uploads/2018/10/componentes-de-pc-gaming.jpg" alt="Discos Duros">
+                <h3>DISCOS DUROS</h3>
+            </div>
+            <div class="banner banner-reguladores">
+                <img src="https://vidagamer.mx/wp-content/uploads/Regulador-para-PC-gamer-Como-elegir-el-adecuado-para-tus-dispositivos.jpg" alt="Reguladores">
+                <h3>REGULADORES</h3>
+            </div>
+            <div class="banner banner-portatiles">
+                <img src="https://acf.geeknetic.es/imgri/imagenes/noticias/2020/18734-msi-gaming-muestra.jpg?f=webp" alt="Portatiles">
+                <h3>PORTATILES</h3>
+            </div>
+            <div class="banner banner-graficas">
+                <img src="https://img.pccomponentes.com/pcblog/5646/mejores-marcas-tarjetas-graficas.jpg" alt="Graficas">
+                <h3>GRAFICAS</h3>
+            </div>
+            <div class="banner banner-accesorios">
+                <img src="https://hiraoka.com.pe/media/mageplaza/blog/post/a/c/accesorios-gamer_1.jpg" alt="Accesorios">
+                <h3>ACCESORIOS</h3>
+            </div>
+
+        </div>
+            
+        
+        <div class="Redes">
+
+            <a class="Redes_Youtube" onclick="window.open('https://www.youtube.com/@ceter342');"></a>
+            <a class="Redes_X" onclick="window.open('https://x.com/CETER22');"></a>
+            <a class="Redes_chat" onclick="toggleChat()"></a>
+            
+        </div>
+
+        <div id="mascot-chat" class="chat-container hidden">
+            <div class="chat-header">
+                <span class="mascot-status">LUMI</span>
+                <button class="close-btn" onclick="toggleChat()"></button>
+            </div>
+            <div class="chat-box" id="chat-box">
+                </div>
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Pregúntame algo..." onkeypress="checkEnter(event)">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+
+        <script>
+            let chatbotPipe = null;
+            let cargandoIA = false;
+    
+            // Inicializa el modelo de lenguaje en el navegador
+            async function inicializarIA() {
+                if (chatbotPipe) return; 
+                
+                cargandoIA = true;
+                agregarMensaje("Lumi se está despertando... (Descargando cerebro de IA local, espera unos segundos por favor)", "mascot-msg");
+    
+                try {
+                    // Cargamos un modelo de generación de texto ultraligero (aprox 70M de parámetros, ideal para navegadores)
+                    chatbotPipe = await window.pipeline('text2text-generation', 'Xenova/LaMini-Flan-T5-78M');
+                    
+                    // Limpiamos el texto de carga inicial
+                    const chatBox = document.getElementById('chat-box');
+                    chatBox.innerHTML = ''; 
+                    
+                    agregarMensaje("¡Hola! Soy Lumi, la mascota de Infinite Code. ¡Ya estoy despierta y corriendo sobre una IA real en tu navegador! ¿De qué quieres hablar? 🎮", "mascot-msg");
+                } catch (error) {
+                    console.error("Error al cargar Transformers.js:", error);
+                    agregarMensaje("Ups, no pude iniciar mi núcleo de IA. Asegúrate de estar conectado a internet para la primera carga.", "mascot-msg");
+                } finally {
+                    cargandoIA = false;
+                }
+            }
+    
+            // Abre o cierra la ventana del chat
+            function toggleChat() {
+                const chat = document.getElementById('mascot-chat');
+                chat.classList.toggle('hidden');
+                
+                // Si el chat se abre y la IA no se ha inicializado, la cargamos de inmediato
+                if (!chat.classList.contains('hidden') && !chatbotPipe && !cargandoIA) {
+                    inicializarIA();
+                }
+            }
+    
+            // Procesa y envía el mensaje a la IA
+            async function sendMessage() {
+                const input = document.getElementById('user-input');
+                const mensajeTexto = input.value.trim();
+                
+                if (mensajeTexto === "" || cargandoIA) return;
+                
+                if (!chatbotPipe) {
+                    agregarMensaje("Espera un momento, sigo cargando mis archivos de lenguaje...", "mascot-msg");
+                    return;
+                }
+    
+                // 1. Dibujar mensaje del usuario en pantalla
+                agregarMensaje(mensajeTexto, "user-msg");
+                input.value = ""; // Limpiar la barra de entrada
+    
+                // 2. Colocar indicador visual de que la IA está procesando
+                const chatBox = document.getElementById('chat-box');
+                const indicadorPensando = document.createElement('div');
+                indicadorPensando.classList.add('message', 'mascot-msg');
+                indicadorPensando.textContent = "Lumi está pensando...";
+                indicadorPensando.id = "lumi-pensando";
+                chatBox.appendChild(indicadorPensando);
+                chatBox.scrollTop = chatBox.scrollHeight;
+    
+                try {
+                    // SYSTEM PROMPT / CONTEXTO: Le damos instrucciones de rol a la IA en el prompt
+                    const promptConContexto = `You are Lumi, the friendly and energetic mascot of the gaming store 'Infinite Code'. Respond in Spanish, short and helpful. User says: ${mensajeTexto}`;
+                    
+                    // Generar respuesta matemática/lingüística computada en la GPU/CPU del usuario
+                    const resultado = await chatbotPipe(promptConContexto, {
+                        max_new_tokens: 60, // Limita la longitud de la respuesta para que no divague
+                        temperature: 0.7,   // Nivel de creatividad equilibrado
+                    });
+    
+                    // Quitar indicador de carga
+                    const indicador = document.getElementById('lumi-pensando');
+                    if (indicador) indicador.remove();
+    
+                    // 3. Imprimir la respuesta generada por la IA
+                    const respuestaIA = resultado[0].generated_text;
+                    agregarMensaje(respuestaIA, "mascot-msg");
+    
+                } catch (error) {
+                    console.error("Error al generar texto:", error);
+                    const indicador = document.getElementById('lumi-pensando');
+                    if (indicador) indicador.remove();
+                    agregarMensaje("¡Ay! Tuve un pequeño error en mi circuito de respuestas. ¿Puedes repetirme eso?", "mascot-msg");
+                }
+            }
+    
+            // Función para renderizar elementos en la caja del chat
+            function agregarMensaje(texto, clase) {
+                const chatBox = document.getElementById('chat-box');
+                const burbujaMensaje = document.createElement('div');
+                burbujaMensaje.classList.add('message', clase);
+                burbujaMensaje.textContent = texto;
+                
+                chatBox.appendChild(burbujaMensaje);
+                chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll al último mensaje enviado
+            }
+    
+            // Detectar pulsación de la tecla Enter
+            function checkEnter(event) {
+                if (event.key === "Enter") {
+                    sendMessage();
+                }
+            }
+        </script>
+        
+        <!-- Aqui se encuentran los productos, en este caso son 3 pero se pueden agregar mas si se desea -->
+        <div class="productos" id="productos">
+            <!-- Las tarjetas de productos se generaran aqui -->
+             
+            
+
+        
+        </div>
+        
+
+        <script src="Visualizadorconfig.js"></script>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section about">
+                    <h3>INFINITECODE</h3>
+                    <p>Tu mejor aliado para el gaming. Encuentra los mejores productos para llevar tu experiencia al siguiente nivel.</p>
+                </div>
+                <div class="footer-section links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="INFINITECODE.html">Inicio</a></li>
+                        
+                        <li><a href="Nosotros.html">Sobre Nosotros</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-section social">
+                    <h4>Síguenos</h4>
+                    <div class="social-icons">
+                        <a href="https://www.youtube.com/@ceter342" target="_blank">
+                            <img src="./Imagenes/Youtube.png" alt="YouTube">
+                        </a>
+                        <a href="https://x.com/CETER22" target="_blank">
+                            <img src="./Imagenes/Xlog.jpg" alt="X">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 INFINITECODE. Todos los derechos reservados. | <a href="Términos y Condiciones (1).pdf" target="_blank">Términos y Condiciones</a> | <a href="Politicas_de_Privacidad_GamingCenter_v2.pdf" target="_blank">Política de Privacidad</a></p>
+            </div>
+            
+        </footer>
+
+        
+        
+
+        <script>
+            const abrirLogin = document.getElementById("abrir-login");
+            const fondoLogin = document.getElementById("fondo-login");
+          
+            const abrirUnirse = document.getElementById("abrir-unirse");
+            const fondoUnirse = document.getElementById("fondo-unirse");
+          
+            abrirLogin.addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoLogin.classList.add("activo");
+            });
+          
+            fondoLogin.addEventListener("click", (e) => {
+              if (e.target === fondoLogin) fondoLogin.classList.remove("activo");
+            });
+          
+            abrirUnirse.addEventListener("click", (e) => {
+              e.preventDefault();
+              fondoUnirse.classList.add("activo");
+            });
+          
+            fondoUnirse.addEventListener("click", (e) => {
+              if (e.target === fondoUnirse) fondoUnirse.classList.remove("activo");
+            });
+          
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                fondoLogin.classList.remove("activo");
+                fondoUnirse.classList.remove("activo");
+              }
+            });
+        </script>
+          
+        <script>
+            const toggleButton = document.getElementById("toggle-search");
+            const barra = document.getElementById("barraBusqueda");
+                    
+            toggleButton.addEventListener("click", () => {
+              if (barra.style.display === "block") {
+                barra.style.display = "none";
+              } else {
+                barra.style.display = "block";
+              }
+            });
+        </script>
+
+        
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+          
+            const guestLinks = document.getElementById("guest-links");
+            const userLinks = document.getElementById("user-links");
+            const userName = document.getElementById("user-name");
+            const userAvatar = document.getElementById("user-avatar");
+          
+            const fondoEditar = document.getElementById("fondo-editar");
+            const editFullname = document.getElementById("edit-fullname");
+            const editEmail = document.getElementById("edit-email");
+            const editPassword = document.getElementById("edit-password");
+            const avatarInput = document.getElementById("avatar-input");
+            const avatarPreview = document.getElementById("avatar-preview");
+            const editarForm = document.getElementById("editar-form");
+          
+            if (usuarioActivo) {
+              guestLinks.style.display = "none";
+              userLinks.style.display = "flex";
+              userName.textContent = usuarioActivo.fullname || "Usuario";
+              userAvatar.src = usuarioActivo.avatar || "https://via.placeholder.com/30";
+            
+              // Mostrar datos en formulario de edición
+              userAvatar?.addEventListener("click", () => {
+                if (usuarioActivo) {
+                  editFullname.value = usuarioActivo.fullname || "";
+                  editEmail.value = usuarioActivo.email || "";
+                  editPassword.value = "";
+                  avatarPreview.src = usuarioActivo.avatar || "https://via.placeholder.com/100";
+                  fondoEditar.classList.add("activo");
+                }
+              });
+            
+              // Cerrar modal al hacer clic fuera
+              fondoEditar?.addEventListener("click", (e) => {
+                if (e.target === fondoEditar) {
+                  fondoEditar.classList.remove("activo");
+                }
+              });
+            
+              // Previsualizar imagen al subir avatar
+              avatarInput?.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith("image/")) {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    avatarPreview.src = reader.result;
+                  };
+                  reader.readAsDataURL(file);
+                }
+              });
+            
+              // Guardar cambios del formulario
+              editarForm?.addEventListener("submit", (e) => {
+                e.preventDefault();
+              
+                usuarioActivo.fullname = editFullname.value.trim();
+                usuarioActivo.email = editEmail.value.trim();
+              
+                if (editPassword.value.trim()) {
+                  usuarioActivo.password = editPassword.value.trim();
+                }
+              
+                if (avatarPreview.src && !avatarPreview.src.includes("placeholder")) {
+                  usuarioActivo.avatar = avatarPreview.src;
+                }
+              
+                // Actualizar lista de usuarios
+                const index = usuarios.findIndex(u => u.username === usuarioActivo.username);
+                if (index !== -1) {
+                  usuarios[index] = usuarioActivo;
+                  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+                }
+              
+                // Guardar usuario activo actualizado
+                localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+              
+                // Actualizar UI
+                userName.textContent = usuarioActivo.fullname;
+                userAvatar.src = usuarioActivo.avatar || "https://via.placeholder.com/30";
+                fondoEditar.classList.remove("activo");
+                alert("Datos actualizados correctamente.");
+              });
+            }
+          
+            // Cerrar sesión
+            document.getElementById("cerrar-sesion")?.addEventListener("click", (e) => {
+              e.preventDefault();
+              localStorage.removeItem("usuarioActivo");
+              location.reload();
+            });
+          });
+        </script>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.categorias-banners .banner').forEach(banner => {
+              banner.addEventListener('click', () => {
+                const productosSection = document.getElementById('productos');
+                if (productosSection) {
+                  productosSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              });
+            });
+          });
+        </script>
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.navbar .dropdown:first-child .mega-menu a[data-category]').forEach(link => {
+              link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const categoria = link.getAttribute('data-category');
+                // Filtrar productos y mostrarlos
+                if (typeof productos !== "undefined" && typeof renderProductos === "function") {
+                  const filtrados = productos.filter(p => p.categoria === categoria);
+                  renderProductos(filtrados);
+                }
+                // Scroll a la sección de productos
+                const productosSection = document.getElementById('productos');
+                if (productosSection) {
+                  productosSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              });
+            });
+          });
+        </script>
+
+        <script>
+          function mostrarHistorialCompras() {
+              const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+              if (!usuario) {
+                  alert("Debes iniciar sesión para ver tu historial.");
+                  return;
+              }
+            
+              const historialKey = `historialCompras_${usuario.username}`;
+              const historial = JSON.parse(localStorage.getItem(historialKey)) || [];
+              const lista = document.getElementById("lista-historial");
+              lista.innerHTML = "";
+            
+              if (historial.length === 0) {
+                  lista.innerHTML = "<li>No hay compras registradas.</li>";
+                  return;
+              }
+            
+              historial.forEach((compra, compraIndex) => {
+                  const item = document.createElement("li");
+                  item.innerHTML = `
+                      <strong>${compra.fecha}</strong>
+                      <ul>
+                          ${compra.productos.map((p, prodIndex) => `
+                              <li style="display: flex; align-items: center; margin-bottom: 5px;">
+                                  <img src="${p.imagen}" alt="${p.nombre}" style="width: 40px; height: 40px; margin-right: 8px;">
+                                  <span>${p.nombre} - ${p.precio}</span>
+                                  <button class="eliminar-producto-historial" 
+                                      data-compra-index="${compraIndex}" 
+                                      data-prod-index="${prodIndex}" 
+                                      style="margin-left: 10px;">Eliminar</button>
+                              </li>
+                          `).join("")}
+                      </ul>
+                  `;
+                  lista.appendChild(item);
+              });
+            
+              // Delegación de eventos para eliminar productos del historial
+              lista.querySelectorAll(".eliminar-producto-historial").forEach(btn => {
+                  btn.addEventListener("click", function() {
+                      const compraIdx = parseInt(this.getAttribute("data-compra-index"), 10);
+                      const prodIdx = parseInt(this.getAttribute("data-prod-index"), 10);
+                  
+                      // Eliminar el producto del historial
+                      historial[compraIdx].productos.splice(prodIdx, 1);
+                  
+                      // Si la compra queda vacía, eliminar la compra completa
+                      if (historial[compraIdx].productos.length === 0) {
+                          historial.splice(compraIdx, 1);
+                      }
+                    
+                      localStorage.setItem(historialKey, JSON.stringify(historial));
+                      mostrarHistorialCompras();
+                  });
+              });
+          }
+
+
+          document.getElementById("abrir-historial").addEventListener("click", (e) => {
+              e.preventDefault();
+              mostrarHistorialCompras();
+              document.getElementById("historial-modal").style.display = "flex";
+          });
+
+          document.getElementById("cerrar-historial").addEventListener("click", () => {
+              document.getElementById("historial-modal").style.display = "none";
+          });
+        </script>
+
+        <script>
+          window.onload = function() {
+            google.accounts.id.initialize({
+              client_id: "TU_CLIENT_ID_DE_GOOGLE", // ← Pega aquí tu Client ID de Google
+              callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+              document.getElementById("google-signin-btn"),
+              { theme: "outline", size: "large", width: 250 }
+            );
+          };
+
+          function handleCredentialResponse(response) {
+            const data = parseJwt(response.credential);
+            // Guardar usuario en localStorage y actualizar la UI
+            const usuarioGoogle = {
+              fullname: data.name,
+              username: data.email, // Usamos el email como username
+              email: data.email,
+              avatar: data.picture,
+              google: true
+            };
+            localStorage.setItem("usuarioActivo", JSON.stringify(usuarioGoogle));
+            alert("Bienvenido, " + data.name + " (Google)");
+            // Recarga la página para mostrar el usuario autenticado
+            location.reload();
+          }
+
+          // Decodifica el JWT de Google
+          function parseJwt (token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+          }
+        </script>
+
+
+        
+
+
+
+
+
+
+        
+
+
+
+    </body>
+
+
+</html>
