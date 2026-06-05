@@ -700,22 +700,28 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
     
                 try {
-                    // SYSTEM PROMPT / CONTEXTO: Le damos instrucciones de rol a la IA en el prompt
-                    const promptConContexto = `You are Lumi, the friendly and energetic mascot of the gaming store 'Infinite Code'. Respond in Spanish, short and helpful. User says: ${mensajeTexto}`;
-                    
-                    // Generar respuesta matemática/lingüística computada en la GPU/CPU del usuario
-                    const resultado = await chatbotPipe(promptConContexto, {
-                        max_new_tokens: 60, // Limita la longitud de la respuesta para que no divague
-                        temperature: 0.7,   // Nivel de creatividad equilibrado
-                    });
-    
-                    // Quitar indicador de carga
-                    const indicador = document.getElementById('lumi-pensando');
-                    if (indicador) indicador.remove();
-    
-                    // 3. Imprimir la respuesta generada por la IA
-                    const respuestaIA = resultado[0].generated_text;
-                    agregarMensaje(respuestaIA, "mascot-msg");
+                  const promptFormateado = `Task: Answer the user short and friendly in Spanish as Lumi, the mascot of Infinite Code.\nUser: ${textoUsuario}\nAnswer:`;
+
+                  // 2. Le pasamos el prompt ordenado y le añadimos parámetros de control vitales
+                  const resultado = await chatbotPipe(promptFormateado, {
+                      max_new_tokens: 40,      // Limita la respuesta para que no se extienda repitiendo código
+                      temperature: 0.6,        // Hace que la respuesta sea centrada y no invente cosas chachas
+                      repetition_penalty: 1.4  // Penaliza severamente al modelo si intenta repetir palabras o prompts
+                  });
+                  
+                  // 3. Extraemos el texto limpio generado
+                  let respuestaLumi = resultado[0].generated_text;
+                  
+                  // LIMPIEZA DE SEGURIDAD: Si por alguna razón el modelo insiste en incluir el prompt, lo podamos:
+                  if (respuestaLumi.includes("Answer:")) {
+                      respuestaLumi = respuestaLumi.split("Answer:").pop().trim();
+                  }
+                  if (respuestaLumi.includes("User:")) {
+                      respuestaLumi = respuestaLumi.split("User:")[0].trim();
+                  }
+                  
+                  // Ahora sí, pasamos la respuesta limpia a tu función para pintar la burbuja
+                  lumiseguroAgregarMensaje(respuestaLumi, "mascot-msg");
     
                 } catch (error) {
                     console.error("Error al generar texto:", error);
