@@ -11,11 +11,11 @@
         <script src="Carritologic.js" defer></script>
         <script type="module">
             import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers';
-
+            
             // Configuración obligatoria para servidores en internet (GitHub Pages)
             env.allowLocalModels = false;
             env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/';
-
+            
             // Guardamos la función pipeline globalmente para usarla abajo en el body
             window.pipeline = pipeline;
             console.log("Núcleo de Transformers.js cargado en el Head.");
@@ -629,77 +629,120 @@
         <script>
             let chatbotPipe = null;
             let cargandoIA = false;
-            
-            // FUNCIÓN PARA ABRIR Y CERRAR EL PANEL DEL CHAT
-            function toggleChat() {
-                const chatContainer = document.getElementById('chat-container'); 
-                // NOTA: Si tu contenedor morado usa otro ID (como 'chat-box-window'), cámbialo aquí.
-                if (chatContainer) {
-                    chatContainer.classList.toggle('active');
-                }
-            }
-          
-            // FUNCIÓN PARA PINTAR LAS BURBUJAS DE TEXTO
-            function lumiseguroAgregarMensaje(texto, clase) {
-                const chatBox = document.getElementById('chat-box');
-                if (!chatBox) return;
-            
-                const mensajeDiv = document.createElement('div');
-                mensajeDiv.className = `message ${clase}`;
-                
-                const textoP = document.createElement('p');
-                textoP.textContent = texto;
-                
-                mensajeDiv.appendChild(textoP);
-                chatBox.appendChild(mensajeDiv);
-                
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-          
-            // MOTOR QUE DESPIERTA A LUMI
+    
+            // Inicializa el modelo de lenguaje en el navegador
             async function inicializarIA() {
-                // Si el head no ha terminado de inyectar pipeline, esperamos un momento
+                // 🚦 SEMÁFORO: Si el script del módulo no ha inyectado la librería aún, esperamos
                 if (typeof window.pipeline !== 'function') {
-                    console.log("Esperando la librería del Head...");
-                    setTimeout(inicializarIA, 500);
+                    console.log("Esperando a que Transformers.js se inyecte en window...");
+                    setTimeout(inicializarIA, 500); // Reintenta en 500 milisegundos
                     return;
                 }
               
-                if (chatbotPipe || cargandoIA) return; 
+                if (chatbotPipe) return; 
                 
                 cargandoIA = true;
+                
+                // Limpiamos errores previos si los hubiera para no duplicar mensajes
                 const chatBox = document.getElementById('chat-box');
-                if (chatBox) chatBox.innerHTML = ''; 
-                
-                lumiseguroAgregarMensaje("Lumi se está despertando... (Descargando cerebro de IA local, espera unos segundos por favor)", "mascot-msg");
-                
+                chatBox.innerHTML = ''; 
+              
+                agregarMensaje("Lumi se está despertando... (Descargando cerebro de IA local, espera unos segundos por favor)", "mascot-msg");
+              
                 try {
-                    console.log("Conectando con Hugging Face...");
-                    // Cargamos el modelo ultraligero
+                    // Cargamos el modelo de generación de texto ultraligero
                     chatbotPipe = await window.pipeline('text2text-generation', 'Xenova/LaMini-Flan-T5-78M');
                     
-                    console.log("¡Lumi cargada con éxito!");
-                    if (chatBox) chatBox.innerHTML = ''; 
+                    // Limpiamos el texto de carga inicial
+                    chatBox.innerHTML = ''; 
                     
-                    lumiseguroAgregarMensaje("¡Hola! Soy Lumi, la mascota de Infinite Code. ¡Ya estoy despierta y corriendo sobre una IA real en tu navegador! ¿De qué quieres hablar? 🎮", "mascot-msg");
+                    agregarMensaje("¡Hola! Soy Lumi, la mascota de Infinite Code. ¡Ya estoy despierta y corriendo sobre una IA real en tu navegador! ¿De qué quieres hablar? 🎮", "mascot-msg");
                 } catch (error) {
-                    console.error("Error al encender la IA:", error);
-                    if (chatBox) chatBox.innerHTML = ''; 
-                    lumiseguroAgregarMensaje("Ups, no pude iniciar mi núcleo de IA. Asegúrate de estar conectado a internet para la primera carga.", "mascot-msg");
+                    console.error("Error crítico dentro de Transformers.js:", error);
+                    agregarMensaje("Ups, no pude iniciar mi núcleo de IA. Asegúrate de estar conectado a internet para la primera carga.", "mascot-msg");
                 } finally {
                     cargandoIA = false;
                 }
             }
-          
-            // Hacemos las funciones visibles para los botones HTML (onclick)
-            window.toggleChat = toggleChat;
-            window.inicializarIA = inicializarIA;
-            
-            // Arranca el proceso automáticamente en segundo plano
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', inicializarIA);
-            } else {
-                inicializarIA();
+    
+            // Abre o cierra la ventana del chat
+            function toggleChat() {
+                const chat = document.getElementById('mascot-chat');
+                chat.classList.toggle('hidden');
+                
+                // Si el chat se abre y la IA no se ha inicializado, la cargamos de inmediato
+                if (!chat.classList.contains('hidden') && !chatbotPipe && !cargandoIA) {
+                    inicializarIA();
+                }
+            }
+    
+            // Procesa y envía el mensaje a la IA
+            async function sendMessage() {
+                const input = document.getElementById('user-input');
+                const mensajeTexto = input.value.trim();
+                
+                if (mensajeTexto === "" || cargandoIA) return;
+                
+                if (!chatbotPipe) {
+                    agregarMensaje("Espera un momento, sigo cargando mis archivos de lenguaje...", "mascot-msg");
+                    return;
+                }
+    
+                // 1. Dibujar mensaje del usuario en pantalla
+                agregarMensaje(mensajeTexto, "user-msg");
+                input.value = ""; // Limpiar la barra de entrada
+    
+                // 2. Colocar indicador visual de que la IA está procesando
+                const chatBox = document.getElementById('chat-box');
+                const indicadorPensando = document.createElement('div');
+                indicadorPensando.classList.add('message', 'mascot-msg');
+                indicadorPensando.textContent = "Lumi está pensando...";
+                indicadorPensando.id = "lumi-pensando";
+                chatBox.appendChild(indicadorPensando);
+                chatBox.scrollTop = chatBox.scrollHeight;
+    
+                try {
+                    // SYSTEM PROMPT / CONTEXTO: Le damos instrucciones de rol a la IA en el prompt
+                    const promptConContexto = `You are Lumi, the friendly and energetic mascot of the gaming store 'Infinite Code'. Respond in Spanish, short and helpful. User says: ${mensajeTexto}`;
+                    
+                    // Generar respuesta matemática/lingüística computada en la GPU/CPU del usuario
+                    const resultado = await chatbotPipe(promptConContexto, {
+                        max_new_tokens: 60, // Limita la longitud de la respuesta para que no divague
+                        temperature: 0.7,   // Nivel de creatividad equilibrado
+                    });
+    
+                    // Quitar indicador de carga
+                    const indicador = document.getElementById('lumi-pensando');
+                    if (indicador) indicador.remove();
+    
+                    // 3. Imprimir la respuesta generada por la IA
+                    const respuestaIA = resultado[0].generated_text;
+                    agregarMensaje(respuestaIA, "mascot-msg");
+    
+                } catch (error) {
+                    console.error("Error al generar texto:", error);
+                    const indicador = document.getElementById('lumi-pensando');
+                    if (indicador) indicador.remove();
+                    agregarMensaje("¡Ay! Tuve un pequeño error en mi circuito de respuestas. ¿Puedes repetirme eso?", "mascot-msg");
+                }
+            }
+    
+            // Función para renderizar elementos en la caja del chat
+            function agregarMensaje(texto, clase) {
+                const chatBox = document.getElementById('chat-box');
+                const burbujaMensaje = document.createElement('div');
+                burbujaMensaje.classList.add('message', clase);
+                burbujaMensaje.textContent = texto;
+                
+                chatBox.appendChild(burbujaMensaje);
+                chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll al último mensaje enviado
+            }
+    
+            // Detectar pulsación de la tecla Enter
+            function checkEnter(event) {
+                if (event.key === "Enter") {
+                    sendMessage();
+                }
             }
         </script>
         
