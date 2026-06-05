@@ -700,35 +700,43 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
     
                 try {
-                  const promptFormateado = `Task: Answer the user short and friendly in Spanish as Lumi, the mascot of Infinite Code.\nUser: ${textoUsuario}\nAnswer:`;
-
-                  // 2. Le pasamos el prompt ordenado y le añadimos parámetros de control vitales
+                  // 1. Construimos un prompt directo y conciso para el modelo
+                  const promptFormateado = `Answer shortly in Spanish as Lumi: ${textoUsuario}`;
+                              
+                  // 2. Ejecutamos la tubería con parámetros optimizados
                   const resultado = await chatbotPipe(promptFormateado, {
-                      max_new_tokens: 40,      // Limita la respuesta para que no se extienda repitiendo código
-                      temperature: 0.6,        // Hace que la respuesta sea centrada y no invente cosas chachas
-                      repetition_penalty: 1.4  // Penaliza severamente al modelo si intenta repetir palabras o prompts
+                      max_new_tokens: 30,
+                      temperature: 0.7,
+                      repetition_penalty: 1.2
                   });
-                  
-                  // 3. Extraemos el texto limpio generado
-                  let respuestaLumi = resultado[0].generated_text;
-                  
-                  // LIMPIEZA DE SEGURIDAD: Si por alguna razón el modelo insiste en incluir el prompt, lo podamos:
-                  if (respuestaLumi.includes("Answer:")) {
-                      respuestaLumi = respuestaLumi.split("Answer:").pop().trim();
-                  }
-                  if (respuestaLumi.includes("User:")) {
-                      respuestaLumi = respuestaLumi.split("User:")[0].trim();
+                
+                  // 3. Extraemos el texto crudo de forma segura
+                  let respuestaRaw = resultado[0]?.generated_text || "";
+                  let respuestaLumi = respuestaRaw;
+                
+                  // 4. Limpieza inteligente: Removemos el prompt original si el modelo lo repitió al inicio
+                  if (respuestaLumi.toLowerCase().startsWith(promptFormateado.toLowerCase())) {
+                      respuestaLumi = respuestaLumi.substring(promptFormateado.length).trim();
                   }
                   
-                  // Ahora sí, pasamos la respuesta limpia a tu función para pintar la burbuja
-                  lumiseguroAgregarMensaje(respuestaLumi, "mascot-msg");
+                  // Quita residuos comunes de formatos rígidos (por si acaso)
+                  respuestaLumi = respuestaLumi.replace(/^Answer:\s*/i, "").trim();
+                  respuestaLumi = respuestaLumi.replace(/^Lumi:\s*/i, "").trim();
+                
+                  // 5. CONTROL DE SEGURIDAD: Si la IA respondió algo real, lo usamos. 
+                  // Si quedó vacío o idéntico al prompt, usamos tu frase de contingencia.
+                  if (respuestaLumi && respuestaLumi !== promptFormateado) {
+                      lumiseguroAgregarMensaje(respuestaLumi, "mascot-msg");
+                  } else {
+                      lumiseguroAgregarMensaje("¡Ay! Tuve un pequeño error en mi circuito de respuestas. ¿Puedes repetirme eso?", "mascot-msg");
+                  }
+                  
+                  
     
                 } catch (error) {
-                    console.error("Error al generar texto:", error);
-                    const indicador = document.getElementById('lumi-pensando');
-                    if (indicador) indicador.remove();
-                    agregarMensaje("¡Ay! Tuve un pequeño error en mi circuito de respuestas. ¿Puedes repetirme eso?", "mascot-msg");
-                }
+                      console.error("Error al procesar la respuesta de Lumi:", error);
+                      lumiseguroAgregarMensaje("¡Ay! Tuve un pequeño error en mi circuito de respuestas. ¿Puedes repetirme eso?", "mascot-msg");
+                  }
             }
     
             // Función para renderizar elementos en la caja del chat
